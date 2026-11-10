@@ -1,0 +1,5 @@
+# Application
+
+具体的なユースケースと、その処理で必要になる外部操作のインターフェースを置く層。domainと標準ライブラリにだけ依存する。
+
+SQL Connect、LiveKit、GeminiなどのSDKはimportしない。外部操作が必要になった時点で小さなProtocolを定義し、infrastructureで実装する。今回は業務機能がないので、架空のユースケースや汎用Repositoryは作らない。

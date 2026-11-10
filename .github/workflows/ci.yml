@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  web:
+    name: Web checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix apps/functions
+      - run: make check-functions
+      - run: make check-web
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: make check-firestore-emulator
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: web-test-results
+          path: |
+            apps/web/coverage/
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  agent:
+    name: Agent checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.0"
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: apps/agent/uv.lock
+      - run: uv sync --locked
+        working-directory: apps/agent
+      - run: make check-agent
+      - run: make agent-check
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: agent-test-results
+          path: |
+            apps/agent/coverage.xml
+            apps/agent/htmlcov/
+          retention-days: 7
+
+  containers:
+    name: Container smoke checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - run: make docker-check
+
+  required:
+    name: Required checks
+    needs: [web, agent, containers]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require all checks to pass
+        env:
+          WEB_RESULT: ${{ needs.web.result }}
+          AGENT_RESULT: ${{ needs.agent.result }}
+          CONTAINER_RESULT: ${{ needs.containers.result }}
+        run: |
+          test "$WEB_RESULT" = success
+          test "$AGENT_RESULT" = success
+          test "$CONTAINER_RESULT" = success
+
+  publish:
+    name: Publish AInote
+    needs: required
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/publish-web.yml

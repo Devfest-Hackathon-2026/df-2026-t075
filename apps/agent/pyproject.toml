@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "classroom-agent"
+version = "0.1.0"
+description = "Configuration and architecture foundation for the classroom worker"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.13,<4",
+    "google-auth>=2.42,<3",
+    "google-cloud-speech>=2.41,<3",
+    "google-genai>=3,<4",
+    "livekit-agents[google,silero]~=1.8.0",
+    "websockets>=17.4,<18",
+]
+
+[dependency-groups]
+dev = [
+  "import-linter>=2.3,<3",
+  "mypy>=1.15,<2",
+  "pytest>=8.3,<10",
+  "pytest-cov>=6,<8",
+  "ruff>=0.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/classroom_agent"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-config --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["classroom_agent"]
+omit = ["src/classroom_agent/__main__.py"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 90
+
+[tool.importlinter]
+root_package = "classroom_agent"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Imports point toward the domain"
+type = "layers"
+containers = ["classroom_agent"]
+layers = ["__main__", "bootstrap", "infrastructure", "application", "domain"]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+name = "Inner layers do not depend on service SDKs"
+type = "forbidden"
+source_modules = ["classroom_agent.domain", "classroom_agent.application"]
+forbidden_modules = ["google", "livekit", "firebase_admin"]

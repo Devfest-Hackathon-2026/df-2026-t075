@@ -1,0 +1,36 @@
+{
+  "name": "ai-classroom",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22.19.0 <23",
+    "npm": ">=10 <12"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @ai-classroom/web",
+    "build": "npm run build --workspace @ai-classroom/web",
+    "start": "npm run start --workspace @ai-classroom/web",
+    "demo:live-map": "npm run demo:live-map --workspace @ai-classroom/web --",
+    "lint": "npm run lint --workspace @ai-classroom/web",
+    "typecheck": "npm run typecheck --workspace @ai-classroom/web && tsc --noEmit -p tsconfig.tools.json",
+    "test": "npm run test --workspace @ai-classroom/web",
+    "test:coverage": "npm run test:coverage --workspace @ai-classroom/web",
+    "test:runtime": "node --test tests/runtime/standalone.test.mjs",
+    "test:db": "node --test tests/runtime/database-live.test.mjs",
+    "test:scripts": "node --test scripts/docker-check.test.mjs apps/web/scripts/map-classification/classification.test.mjs apps/web/scripts/live-map/discussion.test.mjs",
+    "architecture": "depcruise apps/web/src --config .dependency-cruiser.cjs && node --test scripts/architecture.test.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run architecture && npm run test:coverage && npm run test:scripts",
+    "test:e2e": "npx --yes firebase-tools@15.35.0 emulators:exec --only auth,firestore --project demo-meeting-auth \"playwright test\"",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "dependency-cruiser": "18.7.2",
+    "prettier": "3.9.10"
+  }
+}

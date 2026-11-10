@@ -1,3 +1,35 @@
+.DS_Store
+node_modules/
+.firebase/
+*-debug.log*
+.env
+.env.*
+!.env.example
+*service-account*.json
+.next/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+.coverage*
+coverage/
+coverage.xml
+htmlcov/
+playwright-report/
+test-results/
+*.tsbuildinfo
+gha-creds-*.json
+*.pem
+*.key
+.uv-cache/
+.npm-cache/
+/pdf/
+tmp/
+
+# DevFest submission repository
 # 秘密情報（コミットしない）
 .env
 .env.*

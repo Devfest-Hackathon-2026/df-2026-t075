@@ -1,0 +1,229 @@
+.map-view-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.map-view-actions .btn {
+  min-height: 36px;
+  padding: 4px 10px;
+  --offset: 3px;
+}
+
+/* The meeting and its media elements stay mounted in both layouts. */
+body:has(.member-meeting.map-expanded) {
+  overflow: hidden;
+}
+body:has(.member-meeting.map-expanded) .site-bar,
+.map-expanded > .meeting-head,
+.map-expanded .meeting-body > .agenda,
+.map-expanded .meeting-stage > .media-status,
+.map-expanded .meeting-stage > .meeting-transcript,
+.map-expanded .video-grid > :not(.person-tile),
+.map-expanded .meeting-controls:not(:has(.mini-call-control, .icon-btn)),
+.map-expanded .meeting-controls > :not(.mini-call-control, .icon-btn),
+.map-expanded .meeting-stage[data-folded] > :not(.mini-heading),
+.member-map [hidden] {
+  display: none;
+}
+.member-meeting.map-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--paper);
+}
+.map-expanded #member-map {
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: 5rem;
+}
+.map-expanded .member-map {
+  padding: 0 clamp(8px, 2vw, 28px) 18px;
+}
+.map-expanded .live-heading {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  min-height: 56px;
+  margin: 0 0 12px;
+  padding: 8px 0;
+  border-bottom: 2px solid var(--ink);
+  background: var(--paper);
+}
+.map-expanded .map-chart .map-scroll {
+  min-height: max(140px, calc(100dvh - 168px));
+  max-height: max(140px, calc(100dvh - 168px));
+}
+.map-expanded .map-evidence {
+  scroll-margin-top: 5rem;
+}
+.map-expanded .live-empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: max(160px, calc(100dvh - 90px));
+  background-image: radial-gradient(#d8d4c9 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.map-expanded .meeting-body {
+  display: contents;
+}
+.map-expanded .meeting-stage {
+  --dock-gap: 12px;
+  position: fixed;
+  z-index: 4;
+  right: max(env(safe-area-inset-right), var(--dock-gap));
+  bottom: max(env(safe-area-inset-bottom), var(--dock-gap));
+  width: min(296px, 48vw);
+  max-height: min(47dvh, 380px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: white;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.map-expanded .meeting-stage[data-corner$="left"] {
+  right: auto;
+  left: max(env(safe-area-inset-left), var(--dock-gap));
+}
+.map-expanded .meeting-stage[data-corner^="top"] {
+  bottom: auto;
+  top: calc(64px + env(safe-area-inset-top));
+}
+.map-expanded .meeting-stage[data-folded] {
+  width: max-content;
+}
+.mini-heading {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 4px 2px 8px;
+  color: white;
+  background: var(--ink);
+}
+.mini-heading strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.mini-heading button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 32px;
+  border: 0;
+  border-radius: 4px;
+  color: inherit;
+  background: transparent;
+}
+.mini-heading button:is(:hover, :focus-visible) {
+  background: #414141;
+  outline: 1px solid white;
+  outline-offset: -2px;
+}
+.mini-heading .symbol {
+  width: 18px;
+  height: 18px;
+}
+.mini-move {
+  touch-action: none;
+  cursor: grab;
+}
+.mini-move:active {
+  cursor: grabbing;
+}
+[data-folded] .mini-heading .icon-down {
+  transform: rotate(180deg);
+}
+.map-expanded .meeting-stage .video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin: 0;
+}
+.map-expanded .video-grid .person-tile {
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+.map-expanded .video-grid .person-tile:only-of-type,
+.map-expanded .video-grid .person-tile:first-child:nth-last-child(2) {
+  grid-column: 1 / -1;
+  max-height: 106px;
+  width: 100%;
+}
+.map-expanded .person-tile .initial {
+  font-size: clamp(20px, 3vw, 32px);
+}
+.map-expanded .tile-label {
+  bottom: 2px;
+  left: 2px;
+  gap: 3px;
+  max-width: calc(100% - 4px);
+  padding: 0 3px;
+  font-size: 11px;
+}
+.map-expanded .meeting-stage .meeting-controls {
+  margin: 0;
+  padding: 0 4px 5px;
+  gap: 8px;
+}
+.map-expanded .meeting-controls :is(.btn, .icon-btn) {
+  min-height: 30px;
+  padding: 2px 6px;
+  font-size: 12px;
+  --offset: 2px;
+}
+@media (max-width: 540px) {
+  .map-expanded .meeting-stage {
+    --dock-gap: 7px;
+  }
+  .map-expanded .live-heading {
+    gap: 4px;
+  }
+  .map-expanded .live-heading h2 {
+    font-size: 14px;
+  }
+  .map-expanded .map-view-actions {
+    gap: 6px;
+  }
+  .map-expanded .map-view-actions button {
+    font-size: 12px;
+  }
+}
+
+.map-research-tools {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding-bottom: 6px;
+}
+#map-references {
+  flex-basis: 100%;
+  max-height: 38dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+#map-references .research-list {
+  margin: 0;
+}
+
+.map-voice-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.map-research-tools > span:empty {
+  display: none;
+}

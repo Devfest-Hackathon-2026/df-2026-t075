@@ -1,0 +1,35 @@
+{
+  "functions": [
+    {
+      "source": "apps/functions",
+      "codebase": "meeting-events",
+      "runtime": "nodejs22",
+      "ignore": ["node_modules", "test", ".env*", "*-debug.log*"]
+    }
+  ],
+  "firestore": {
+    "database": "(default)",
+    "rules": "firestore.rules"
+  },
+  "emulators": {
+    "auth": { "host": "127.0.0.1", "port": 9099 },
+    "functions": { "host": "127.0.0.1", "port": 5001 },
+    "firestore": { "host": "127.0.0.1", "port": 8180 }
+  },
+  "dataconnect": {
+    "source": "dataconnect"
+  },
+  "hosting": {
+    "site": "hackathon-7314b",
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "ainote-web",
+          "region": "asia-northeast1",
+          "pinTag": true
+        }
+      }
+    ]
+  }
+}

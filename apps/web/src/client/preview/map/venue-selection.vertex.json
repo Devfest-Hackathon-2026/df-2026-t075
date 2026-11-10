@@ -1,0 +1,885 @@
+{
+  "script": "venue-selection",
+  "run": "20261110-venue-delta4",
+  "model": "gemini-3.8-flash",
+  "promptVersion": "map-delta-4",
+  "steps": [
+    {
+      "throughUtteranceId": "u01",
+      "nodes": [
+        {
+          "id": "u01_1",
+          "kind": "topic",
+          "text": "12月12日午後のゼミ勉強会の会場をどこにするか",
+          "status": "open",
+          "sourceUtteranceIds": ["u01"],
+          "sourceRoles": { "u01": "statement" }
+        },
+        {
+          "id": "u01_2",
+          "kind": "condition",
+          "text": "日時は12月12日の午後",
+          "sourceUtteranceIds": ["u01"],
+          "sourceRoles": { "u01": "statement" }
+        },
+        {
+          "id": "u01_3",
+          "kind": "condition",
+          "text": "予算上限はゼミ費から出せる合計1万円",
+          "sourceUtteranceIds": ["u01"],
+          "sourceRoles": { "u01": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u01_2~condition_for~u01_1",
+          "from": "u01_2",
+          "to": "u01_1",
+          "relation": "condition_for"
+        },
+        {
+          "id": "u01_3~condition_for~u01_1",
+          "from": "u01_3",
+          "to": "u01_1",
+          "relation": "condition_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u02",
+      "nodes": [
+        {
+          "id": "u02_1",
+          "kind": "idea",
+          "text": "駅前の貸会議室",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u02"]
+        },
+        {
+          "id": "u02_2",
+          "kind": "reason",
+          "text": "改札を出てすぐ見え、初めて来る人も迷わない",
+          "sourceUtteranceIds": ["u02"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u02_1~answers~u01_1",
+          "from": "u02_1",
+          "to": "u01_1",
+          "relation": "answers"
+        },
+        {
+          "id": "u02_2~supports~u02_1",
+          "from": "u02_2",
+          "to": "u02_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u03",
+      "nodes": [
+        {
+          "id": "u03_1",
+          "kind": "condition",
+          "text": "参加人数は12人",
+          "sourceUtteranceIds": ["u03"],
+          "sourceRoles": { "u03": "statement" }
+        },
+        {
+          "id": "u03_2",
+          "kind": "question",
+          "text": "机を出して12人が全員座れるか",
+          "status": "open",
+          "sourceUtteranceIds": ["u03"],
+          "sourceRoles": { "u03": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u03_1~condition_for~u01_1",
+          "from": "u03_1",
+          "to": "u01_1",
+          "relation": "condition_for"
+        },
+        {
+          "id": "u03_2~asks_about~u02_1",
+          "from": "u03_2",
+          "to": "u02_1",
+          "relation": "asks_about"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u04",
+      "nodes": [
+        {
+          "id": "u03_2",
+          "kind": "question",
+          "text": "机を並べて16席あり12人全員が座れる",
+          "status": "confirmed",
+          "sourceUtteranceIds": ["u03", "u04"],
+          "sourceRoles": { "u03": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u03_2~supports~u02_1",
+          "from": "u03_2",
+          "to": "u02_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": ["u03_2~asks_about~u02_1"]
+    },
+    {
+      "throughUtteranceId": "u05",
+      "nodes": [
+        {
+          "id": "u05_1",
+          "kind": "question",
+          "text": "駅前の貸会議室の土曜の利用料金はいくらか",
+          "status": "open",
+          "sourceUtteranceIds": ["u05"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u05_1~asks_about~u02_1",
+          "from": "u05_1",
+          "to": "u02_1",
+          "relation": "asks_about"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u06",
+      "nodes": [
+        {
+          "id": "u05_1",
+          "kind": "question",
+          "text": "駅前の貸会議室の土曜の利用料金はいくらか",
+          "status": "checking",
+          "sourceUtteranceIds": ["u05", "u06"]
+        },
+        {
+          "id": "u06_1",
+          "kind": "action",
+          "text": "駅前の貸会議室の土曜の利用料金を予約ページで確認する",
+          "status": "pending",
+          "assignee": "美咲",
+          "sourceUtteranceIds": ["u06"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u06_1~action_for~u02_1",
+          "from": "u06_1",
+          "to": "u02_1",
+          "relation": "action_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u07",
+      "nodes": [
+        {
+          "id": "u07_1",
+          "kind": "idea",
+          "text": "市民センターの研修室",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u07"]
+        },
+        {
+          "id": "u07_2",
+          "kind": "reason",
+          "text": "駅から少し歩く",
+          "sourceUtteranceIds": ["u07"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u07_1~answers~u01_1",
+          "from": "u07_1",
+          "to": "u01_1",
+          "relation": "answers"
+        },
+        {
+          "id": "u07_2~opposes~u07_1",
+          "from": "u07_2",
+          "to": "u07_1",
+          "relation": "opposes"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u08",
+      "nodes": [
+        {
+          "id": "u08_1",
+          "kind": "reason",
+          "text": "定員20人で参加予定の12人を収容できる",
+          "sourceUtteranceIds": ["u08", "u03"]
+        },
+        {
+          "id": "u08_2",
+          "kind": "reason",
+          "text": "土曜午後の利用料は6,000円で予算1万円以内に収まる",
+          "sourceUtteranceIds": ["u08", "u01"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u08_1~supports~u07_1",
+          "from": "u08_1",
+          "to": "u07_1",
+          "relation": "supports"
+        },
+        {
+          "id": "u08_2~supports~u07_1",
+          "from": "u08_2",
+          "to": "u07_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u09",
+      "nodes": [
+        {
+          "id": "u09_1",
+          "kind": "topic",
+          "text": "勉強会の案内で行き方をどう共有するか",
+          "status": "open",
+          "sourceUtteranceIds": ["u09"]
+        },
+        {
+          "id": "u09_2",
+          "kind": "idea",
+          "text": "案内に地図のリンクを貼る",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u09"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u09_2~answers~u09_1",
+          "from": "u09_2",
+          "to": "u09_1",
+          "relation": "answers"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u10",
+      "nodes": [
+        {
+          "id": "u09_2",
+          "kind": "idea",
+          "text": "案内に地図のリンクを貼る",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u09", "u10"]
+        },
+        {
+          "id": "u10_1",
+          "kind": "idea",
+          "text": "案内に地図と入口の写真を載せる",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u10"]
+        },
+        {
+          "id": "u10_2",
+          "kind": "reason",
+          "text": "去年同じ建物の反対側で待っていた人がいたため迷わないようにする",
+          "sourceUtteranceIds": ["u10"],
+          "sourceRoles": { "u10": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u10_1~answers~u09_1",
+          "from": "u10_1",
+          "to": "u09_1",
+          "relation": "answers"
+        },
+        {
+          "id": "u10_2~supports~u10_1",
+          "from": "u10_2",
+          "to": "u10_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u11",
+      "nodes": [
+        {
+          "id": "u05_1",
+          "kind": "question",
+          "text": "12月12日午後の利用料は8,000円で予算1万円以内に収まり空室もある",
+          "status": "confirmed",
+          "sourceUtteranceIds": ["u05", "u06", "u11"]
+        },
+        {
+          "id": "u06_1",
+          "kind": "action",
+          "text": "駅前の貸会議室の土曜の利用料金を予約ページで確認する",
+          "status": "completed",
+          "assignee": "美咲",
+          "sourceUtteranceIds": ["u06", "u11"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u05_1~supports~u02_1",
+          "from": "u05_1",
+          "to": "u02_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": ["u05_1~asks_about~u02_1"]
+    },
+    {
+      "throughUtteranceId": "u12",
+      "nodes": [
+        {
+          "id": "u01_1",
+          "kind": "topic",
+          "text": "12月12日午後のゼミ勉強会の会場をどこにするか",
+          "status": "decided",
+          "sourceUtteranceIds": ["u01", "u12"],
+          "sourceRoles": { "u01": "statement" }
+        },
+        {
+          "id": "u02_1",
+          "kind": "idea",
+          "text": "駅前の貸会議室",
+          "status": "decided",
+          "sourceUtteranceIds": ["u02", "u12"]
+        },
+        {
+          "id": "u12_1",
+          "kind": "reason",
+          "text": "設備にプロジェクターがありスライドを映せる",
+          "sourceUtteranceIds": ["u12"],
+          "sourceRoles": { "u12": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u12_1~supports~u02_1",
+          "from": "u12_1",
+          "to": "u02_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u13",
+      "nodes": [
+        {
+          "id": "u01_1",
+          "kind": "topic",
+          "text": "12月12日午後のゼミ勉強会の会場をどこにするか",
+          "status": "open",
+          "sourceUtteranceIds": ["u01", "u12", "u13"],
+          "sourceRoles": { "u01": "statement" }
+        },
+        {
+          "id": "u02_1",
+          "kind": "idea",
+          "text": "駅前の貸会議室",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u02", "u12", "u13"],
+          "sourceRoles": { "u13": "disagree" }
+        },
+        {
+          "id": "u13_1",
+          "kind": "question",
+          "text": "プロジェクターの利用料は室料8,000円に含まれるか",
+          "status": "open",
+          "sourceUtteranceIds": ["u13"],
+          "sourceRoles": { "u13": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u13_1~asks_about~u02_1",
+          "from": "u13_1",
+          "to": "u02_1",
+          "relation": "asks_about"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u14",
+      "nodes": [
+        {
+          "id": "u13_1",
+          "kind": "question",
+          "text": "プロジェクターの利用料は室料8,000円に含まれるか",
+          "status": "checking",
+          "sourceUtteranceIds": ["u13", "u14"],
+          "sourceRoles": { "u13": "statement" }
+        },
+        {
+          "id": "u14_1",
+          "kind": "action",
+          "text": "駅前の貸会議室の備品料金表でプロジェクター利用料を確認する",
+          "status": "pending",
+          "assignee": "美咲",
+          "sourceUtteranceIds": ["u14"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u14_1~action_for~u02_1",
+          "from": "u14_1",
+          "to": "u02_1",
+          "relation": "action_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u15",
+      "nodes": [
+        {
+          "id": "u15_1",
+          "kind": "condition",
+          "text": "写真を大きく映して細かいところを見るためプロジェクターが必要",
+          "sourceUtteranceIds": ["u15", "u03"],
+          "sourceRoles": { "u15": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u15_1~condition_for~u01_1",
+          "from": "u15_1",
+          "to": "u01_1",
+          "relation": "condition_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u16",
+      "nodes": [
+        {
+          "id": "u01_3",
+          "kind": "condition",
+          "text": "部屋代と機材代を合わせて予算合計1万円以内に収める",
+          "sourceUtteranceIds": ["u01", "u16"],
+          "sourceRoles": { "u01": "statement", "u16": "statement" }
+        },
+        {
+          "id": "u15_1",
+          "kind": "condition",
+          "text": "写真を大きく映して細かいところを見るためプロジェクターが必要",
+          "sourceUtteranceIds": ["u15", "u03", "u16"],
+          "sourceRoles": { "u15": "statement", "u16": "agree" }
+        }
+      ],
+      "edges": [],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u17",
+      "nodes": [
+        {
+          "id": "u13_1",
+          "kind": "question",
+          "text": "プロジェクター利用料はプラス3,000円で部屋代8,000円と合わせて合計11,000円となり予算1万円を超える",
+          "status": "confirmed",
+          "sourceUtteranceIds": ["u13", "u14", "u17"],
+          "sourceRoles": { "u13": "statement" }
+        },
+        {
+          "id": "u14_1",
+          "kind": "action",
+          "text": "駅前の貸会議室の備品料金表でプロジェクター利用料を確認する",
+          "status": "completed",
+          "assignee": "美咲",
+          "sourceUtteranceIds": ["u14", "u17"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u13_1~opposes~u02_1",
+          "from": "u13_1",
+          "to": "u02_1",
+          "relation": "opposes"
+        }
+      ],
+      "removedEdgeIds": ["u13_1~asks_about~u02_1"]
+    },
+    {
+      "throughUtteranceId": "u18",
+      "nodes": [
+        {
+          "id": "u02_1",
+          "kind": "idea",
+          "text": "駅前の貸会議室",
+          "status": "proposed-removal",
+          "sourceUtteranceIds": ["u02", "u12", "u13", "u18"],
+          "sourceRoles": { "u13": "disagree" }
+        },
+        {
+          "id": "u18_1",
+          "kind": "reason",
+          "text": "部屋代とプロジェクター代の合計11,000円が予算上限1万円を1,000円超過する",
+          "sourceUtteranceIds": ["u18", "u01", "u13", "u17"],
+          "sourceRoles": { "u18": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u18_1~reason_for_exclusion~u02_1",
+          "from": "u18_1",
+          "to": "u02_1",
+          "relation": "reason_for_exclusion"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u19",
+      "nodes": [
+        {
+          "id": "u02_1",
+          "kind": "idea",
+          "text": "駅前の貸会議室",
+          "status": "excluded",
+          "sourceUtteranceIds": ["u02", "u12", "u13", "u18", "u19"],
+          "sourceRoles": { "u13": "disagree" }
+        },
+        {
+          "id": "u19_1",
+          "kind": "question",
+          "text": "市民センターの土曜午後利用料6,000円にプロジェクター等の機材代が含まれているか",
+          "status": "open",
+          "sourceUtteranceIds": ["u19"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u19_1~asks_about~u07_1",
+          "from": "u19_1",
+          "to": "u07_1",
+          "relation": "asks_about"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u20",
+      "nodes": [
+        {
+          "id": "u19_1",
+          "kind": "question",
+          "text": "市民センターの土曜午後利用料6,000円にプロジェクター等の機材代が含まれているか",
+          "status": "checking",
+          "sourceUtteranceIds": ["u19", "u20"]
+        },
+        {
+          "id": "u20_1",
+          "kind": "action",
+          "text": "市民センターの今年の利用案内を見て機材代が含まれるか確認する",
+          "status": "pending",
+          "assignee": "陸",
+          "sourceUtteranceIds": ["u20"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u20_1~action_for~u07_1",
+          "from": "u20_1",
+          "to": "u07_1",
+          "relation": "action_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u21",
+      "nodes": [
+        {
+          "id": "u21_1",
+          "kind": "note",
+          "text": "市民センターの入口（バス停側から曲がり角が写ったもの）の写真を美咲が持っている",
+          "sourceUtteranceIds": ["u21"],
+          "sourceRoles": { "u21": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u21_1~informs~u10_1",
+          "from": "u21_1",
+          "to": "u10_1",
+          "relation": "informs"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u22",
+      "nodes": [
+        {
+          "id": "u22_1",
+          "kind": "action",
+          "text": "勉強会の案内文を書く",
+          "status": "pending",
+          "assignee": "葵",
+          "sourceUtteranceIds": ["u22"]
+        },
+        {
+          "id": "u22_2",
+          "kind": "action",
+          "text": "会場の予約が取れたら案内文を送る",
+          "status": "pending",
+          "sourceUtteranceIds": ["u22"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u22_1~action_for~u09_1",
+          "from": "u22_1",
+          "to": "u09_1",
+          "relation": "action_for"
+        },
+        {
+          "id": "u22_2~action_for~u09_1",
+          "from": "u22_2",
+          "to": "u09_1",
+          "relation": "action_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u23",
+      "nodes": [
+        {
+          "id": "u19_1",
+          "kind": "question",
+          "text": "市民センターの研修室は土曜午後6,000円でプロジェクターも料金に含まれ予算1万円以内に収まる",
+          "status": "confirmed",
+          "sourceUtteranceIds": ["u19", "u20", "u23", "u01"]
+        },
+        {
+          "id": "u20_1",
+          "kind": "action",
+          "text": "市民センターの今年の利用案内を見て機材代が含まれるか確認する",
+          "status": "completed",
+          "assignee": "陸",
+          "sourceUtteranceIds": ["u20", "u23"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u19_1~supports~u07_1",
+          "from": "u19_1",
+          "to": "u07_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": ["u19_1~asks_about~u07_1"]
+    },
+    {
+      "throughUtteranceId": "u24",
+      "nodes": [
+        {
+          "id": "u24_1",
+          "kind": "question",
+          "text": "市民センターの研修室は12月12日午後に空室があるか",
+          "status": "open",
+          "sourceUtteranceIds": ["u24"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u24_1~asks_about~u07_1",
+          "from": "u24_1",
+          "to": "u07_1",
+          "relation": "asks_about"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u25",
+      "nodes": [
+        {
+          "id": "u01_2",
+          "kind": "condition",
+          "text": "日時は12月12日の午後のまま変更しない",
+          "status": "withdrawn",
+          "sourceUtteranceIds": ["u01", "u25"],
+          "sourceRoles": { "u01": "statement", "u25": "statement" }
+        }
+      ],
+      "edges": [],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u26",
+      "nodes": [
+        {
+          "id": "u24_1",
+          "kind": "question",
+          "text": "市民センターの研修室は12月12日午後に空室がある",
+          "status": "confirmed",
+          "sourceUtteranceIds": ["u24", "u26"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u24_1~supports~u07_1",
+          "from": "u24_1",
+          "to": "u07_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": ["u24_1~asks_about~u07_1"]
+    },
+    {
+      "throughUtteranceId": "u27",
+      "nodes": [
+        {
+          "id": "u07_1",
+          "kind": "idea",
+          "text": "市民センターの研修室",
+          "status": "candidate",
+          "sourceUtteranceIds": ["u07", "u27"]
+        },
+        {
+          "id": "u27_1",
+          "kind": "reason",
+          "text": "写真付きで行き方を案内すれば駅から少し歩く点もカバーできる",
+          "sourceUtteranceIds": ["u27", "u07", "u21"],
+          "sourceRoles": { "u27": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u27_1~supports~u07_1",
+          "from": "u27_1",
+          "to": "u07_1",
+          "relation": "supports"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u28",
+      "nodes": [
+        {
+          "id": "u01_1",
+          "kind": "topic",
+          "text": "12月12日午後のゼミ勉強会の会場をどこにするか",
+          "status": "decided",
+          "sourceUtteranceIds": ["u01", "u12", "u13", "u28"],
+          "sourceRoles": { "u01": "statement" }
+        },
+        {
+          "id": "u07_1",
+          "kind": "idea",
+          "text": "市民センターの研修室",
+          "status": "decided",
+          "sourceUtteranceIds": ["u07", "u27", "u28"]
+        },
+        {
+          "id": "u28_1",
+          "kind": "action",
+          "text": "市民センターの研修室の申込みフォームを送信して予約する",
+          "status": "pending",
+          "assignee": "陸",
+          "sourceUtteranceIds": ["u28"]
+        }
+      ],
+      "edges": [
+        {
+          "id": "u28_1~action_for~u07_1",
+          "from": "u28_1",
+          "to": "u07_1",
+          "relation": "action_for"
+        }
+      ],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u29",
+      "nodes": [
+        {
+          "id": "u01_1",
+          "kind": "topic",
+          "text": "12月12日午後のゼミ勉強会の会場をどこにするか",
+          "status": "decided",
+          "sourceUtteranceIds": ["u01", "u12", "u13", "u28", "u29"],
+          "sourceRoles": { "u01": "statement" }
+        },
+        {
+          "id": "u07_1",
+          "kind": "idea",
+          "text": "市民センターの研修室",
+          "status": "decided",
+          "sourceUtteranceIds": ["u07", "u27", "u28", "u29"],
+          "sourceRoles": { "u29": "agree" }
+        },
+        {
+          "id": "u28_1",
+          "kind": "action",
+          "text": "市民センターの研修室を申し込み、予約が取れたら共有する",
+          "status": "pending",
+          "assignee": "陸",
+          "sourceUtteranceIds": ["u28", "u29"]
+        }
+      ],
+      "edges": [],
+      "removedEdgeIds": []
+    },
+    {
+      "throughUtteranceId": "u30",
+      "nodes": [
+        {
+          "id": "u22_2",
+          "kind": "action",
+          "text": "市民センターの予約完了連絡を受けてから参加者へ案内文を送る",
+          "status": "pending",
+          "sourceUtteranceIds": ["u22", "u30", "u28", "u29"],
+          "sourceRoles": { "u30": "statement" }
+        },
+        {
+          "id": "u30_1",
+          "kind": "action",
+          "text": "市民センターの入口の写真を葵に送る",
+          "status": "pending",
+          "assignee": "美咲",
+          "sourceUtteranceIds": ["u30"],
+          "sourceRoles": { "u30": "statement" }
+        }
+      ],
+      "edges": [
+        {
+          "id": "u30_1~action_for~u09_1",
+          "from": "u30_1",
+          "to": "u09_1",
+          "relation": "action_for"
+        }
+      ],
+      "removedEdgeIds": []
+    }
+  ]
+}

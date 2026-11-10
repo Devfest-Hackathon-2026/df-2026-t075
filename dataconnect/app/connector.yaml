@@ -1,0 +1,5 @@
+connectorId: app
+generate:
+  adminNodeSdk:
+    outputDir: ../../apps/web/src/server/infrastructure/sql-connect/generated
+    package: "@ai-classroom/sql-connect-admin"

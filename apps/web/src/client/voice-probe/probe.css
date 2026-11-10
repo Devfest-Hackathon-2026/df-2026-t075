@@ -1,0 +1,29 @@
+.voice-probe {
+  max-width: 760px;
+  display: grid;
+  gap: 16px;
+}
+.voice-probe .probe-form {
+  display: grid;
+  gap: 14px;
+}
+.probe-form button {
+  justify-self: start;
+}
+.probe-conversation {
+  display: grid;
+  grid-template-columns: minmax(100px, 26%) 1fr;
+  align-items: center;
+  gap: 16px;
+}
+.probe-conversation p + p {
+  margin-top: 8px;
+}
+.voice-probe dl {
+  margin: 0;
+}
+.voice-probe dd {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+}

@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: hackathon-7314b-service
+location: asia-northeast1
+schema:
+  source: ./schema
+  datasource:
+    postgresql:
+      database: hackathon-7314b-database
+      schemaValidation: COMPATIBLE
+      cloudSql:
+        instanceId: hackathon-7314b-instance
+connectorDirs: ["./app"]

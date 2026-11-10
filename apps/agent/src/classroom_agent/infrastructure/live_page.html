@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AInote 声の検証</title>
+    <style>
+      :root {
+        --paper: #fffdf5;
+        --ink: #111111;
+        --muted: #5b5a55;
+        --line: #111111;
+        --now: #ffc93c;
+        --ai: #3d7bff;
+        --done: #2bb673;
+        --stop: #ff5a4e;
+        --fixed: #efede4;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui,
+          sans-serif;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+        display: grid;
+        gap: 16px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .panel {
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 16px;
+      }
+      .stage {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 16px;
+        align-items: center;
+      }
+      .tile {
+        aspect-ratio: 1;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: var(--ai);
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+      .face {
+        width: 46%;
+        aspect-ratio: 1;
+        background: #ffffff;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        justify-items: center;
+        padding: 18% 14%;
+      }
+      .face i {
+        width: 22%;
+        aspect-ratio: 1;
+        min-width: 8px;
+        background: var(--ink);
+        border-radius: 2px;
+      }
+      .tile b {
+        position: absolute;
+        left: 8px;
+        bottom: 8px;
+        background: #ffffff;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 8px;
+        font-size: 14px;
+      }
+      .tile[data-state="thinking"] .face {
+        animation: think 1s ease-in-out infinite alternate;
+      }
+      .tile[data-state="speaking"] {
+        outline: 4px solid var(--now);
+        outline-offset: 2px;
+      }
+      @keyframes think {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(-6px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .tile[data-state="thinking"] .face {
+          animation: none;
+        }
+      }
+      .status {
+        display: inline-block;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 8px;
+        font-weight: 700;
+        background: var(--fixed);
+      }
+      .status[data-state="listening"] {
+        background: var(--stop);
+      }
+      .status[data-state="speaking"] {
+        background: var(--now);
+      }
+      .caption {
+        min-height: 3.2em;
+        font-size: 20px;
+        margin: 8px 0;
+      }
+      .caption[data-kind="heard"] {
+        color: var(--muted);
+      }
+      .meter {
+        height: 8px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--fixed);
+      }
+      .meter span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--done);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      button {
+        font: inherit;
+        font-weight: 700;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--ink);
+        padding: 6px 16px;
+        box-shadow: 4px 4px 0 var(--ink);
+        cursor: pointer;
+      }
+      button:active:not(:disabled) {
+        transform: translate(4px, 4px);
+        box-shadow: none;
+      }
+      button.primary {
+        background: var(--ink);
+        color: var(--paper);
+        box-shadow:
+          4px 4px 0 -2px var(--paper),
+          4px 4px 0 var(--ink);
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px dashed var(--ai);
+        outline-offset: 3px;
+      }
+      label {
+        font-size: 14px;
+      }
+      .log {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 4px;
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .log li b {
+        margin-right: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+      th,
+      td {
+        border-bottom: 2px solid var(--fixed);
+        padding: 4px 8px;
+        text-align: right;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      .error {
+        color: #b3261e;
+        font-weight: 700;
+      }
+      @media (max-width: 640px) {
+        .stage {
+          grid-template-columns: 1fr;
+        }
+        .tile {
+          max-width: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>AInote 声の検証</h1>
+        <p class="note" id="models"></p>
+        <p class="note">
+          ローカルでの検証用です。話した内容と返答はこの画面にだけ表示し、保存しません。1回ごとにGoogleの料金がかかります。
+        </p>
+      </header>
+
+      <section class="panel stage" aria-label="AIメンバー">
+        <div class="tile" id="tile" data-state="idle">
+          <div class="face"><i></i><i></i></div>
+          <b id="member"></b>
+        </div>
+        <div>
+          <span class="status" id="status" data-state="idle" role="status"
+            >準備中</span
+          >
+          <p class="caption" id="caption" aria-live="polite"></p>
+          <div class="meter" aria-hidden="true"><span id="level"></span></div>
+        </div>
+      </section>
+
+      <section class="panel controls" aria-label="操作">
+        <button class="primary" id="talk" disabled>話す</button>
+        <button id="finish" disabled>話し終えた</button>
+        <button id="sample" hidden disabled>サンプル音声で試す</button>
+        <label
+          ><input type="checkbox" id="auto" checked />
+          AIが話し終えたら続けて聞く</label
+        >
+        <span class="error" id="error" role="alert"></span>
+      </section>
+
+      <section class="panel">
+        <h2>会話</h2>
+        <ol class="log" id="log"></ol>
+      </section>
+
+      <section class="panel">
+        <h2>遅れ（秒）</h2>
+        <p class="note">
+          「話し終えてから」はブラウザで測った、声が途切れた時刻からの時間です。「確定まで」は、話し終えたとAIが判断するまでの時間です。内訳はサーバーで測った、話し終えたと判断してからの時間です。
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>回</th>
+              <th>確定まで</th>
+              <th>字幕まで</th>
+              <th>声まで</th>
+              <th>Gemini 最初</th>
+              <th>Gemini 完成</th>
+              <th>TTS 最初</th>
+              <th>費用</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p class="note" id="median"></p>
+      </section>
+    </main>
+
+    <script id="config" type="application/json">
+      __CONFIG__
+    </script>
+    <script>
+      "use strict";
+      const config = JSON.parse(document.getElementById("config").textContent);
+      const $ = (id) => document.getElementById(id);
+      const VOICE_RMS = 0.02;
+      const LABELS = {
+        idle: "待機中",
+        listening: "聞いています",
+        thinking: "考えています",
+        speaking: "話しています",
+        offline: "切断されました",
+      };
+      const WORKLET = `
+        class Capture extends AudioWorkletProcessor {
+          constructor() {
+            super();
+            this.ratio = sampleRate / 16000;
+            this.pos = 0; this.sum = 0; this.count = 0;
+            this.out = new Int16Array(1600); this.n = 0; this.energy = 0;
+          }
+          process(inputs) {
+            const channel = inputs[0] && inputs[0][0];
+            const length = channel ? channel.length : 128;
+            for (let i = 0; i < length; i++) {
+              this.sum += channel ? channel[i] : 0; this.count++; this.pos++;
+              if (this.pos < this.ratio) continue;
+              this.pos -= this.ratio;
+              const v = Math.max(-1, Math.min(1, this.sum / this.count));
+              this.sum = 0; this.count = 0; this.energy += v * v;
+              this.out[this.n++] = v < 0 ? v * 0x8000 : v * 0x7fff;
+              if (this.n === this.out.length) {
+                const rms = Math.sqrt(this.energy / this.n);
+                this.port.postMessage({ pcm: this.out.buffer, rms }, [this.out.buffer]);
+                this.out = new Int16Array(1600); this.n = 0; this.energy = 0;
+              }
+            }
+            return true;
+          }
+        }
+        registerProcessor("capture", Capture);`;
+
+      let state = "idle";
+      let ctx = null;
+      let node = null;
+      let mic = null;
+      let sampleBuffer = null;
+      let sampleSource = null;
+      let voiceRate = 24000;
+      let playHead = 0;
+      let lastVoiceAt = null;
+      let mode = "mic";
+      let turn = null;
+      const results = [];
+
+      $("member").textContent = config.memberName + " · AI";
+      $("models").textContent =
+        "お題: " + config.topic + " ／ " + config.models;
+      $("sample").hidden = !config.hasSample;
+
+      function setState(next) {
+        state = next;
+        $("status").textContent = LABELS[next];
+        $("status").dataset.state = next;
+        $("tile").dataset.state = next;
+        const ready = next === "idle" && ws.readyState === WebSocket.OPEN;
+        $("talk").disabled = !ready;
+        $("sample").disabled = !ready;
+        $("finish").disabled = next !== "listening";
+      }
+
+      function addLine(speaker, text) {
+        const item = document.createElement("li");
+        const name = document.createElement("b");
+        name.textContent = speaker === "ai" ? config.memberName : "あなた";
+        item.append(name, document.createTextNode(text));
+        $("log").append(item);
+        item.scrollIntoView({ block: "nearest" });
+      }
+
+      async function ensureAudio() {
+        if (!ctx) {
+          ctx = new AudioContext();
+          const url = URL.createObjectURL(
+            new Blob([WORKLET], { type: "text/javascript" }),
+          );
+          await ctx.audioWorklet.addModule(url);
+          node = new AudioWorkletNode(ctx, "capture");
+          const mute = ctx.createGain();
+          mute.gain.value = 0;
+          node.connect(mute).connect(ctx.destination);
+          node.port.onmessage = (event) => onCapture(event.data);
+        }
+        await ctx.resume();
+      }
+
+      function onCapture({ pcm, rms }) {
+        $("level").style.width = Math.min(100, rms * 400) + "%";
+        if (state !== "listening") return;
+        if (rms >= VOICE_RMS) lastVoiceAt = performance.now();
+        if (ws.readyState === WebSocket.OPEN) ws.send(pcm);
+      }
+
+      async function startTurn(nextMode) {
+        $("error").textContent = "";
+        mode = nextMode;
+        await ensureAudio();
+        if (mode === "mic") {
+          if (!mic) {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+            });
+            mic = ctx.createMediaStreamSource(stream);
+          }
+          mic.connect(node);
+        } else {
+          if (mic) mic.disconnect();
+          if (!sampleBuffer) {
+            const data = await (await fetch("/sample.wav")).arrayBuffer();
+            sampleBuffer = await ctx.decodeAudioData(data);
+          }
+        }
+        turn = { number: results.length + 1 };
+        lastVoiceAt = null;
+        setState("listening");
+        ws.send(JSON.stringify({ type: "start" }));
+        if (mode === "sample") {
+          sampleSource = ctx.createBufferSource();
+          sampleSource.buffer = sampleBuffer;
+          sampleSource.connect(node);
+          sampleSource.connect(ctx.destination);
+          sampleSource.start();
+        }
+      }
+
+      function playChunk(buffer) {
+        const pcm = new Int16Array(buffer);
+        const samples = new Float32Array(pcm.length);
+        for (let i = 0; i < pcm.length; i++) samples[i] = pcm[i] / 0x8000;
+        const audio = ctx.createBuffer(1, samples.length, voiceRate);
+        audio.copyToChannel(samples, 0);
+        const source = ctx.createBufferSource();
+        source.buffer = audio;
+        source.connect(ctx.destination);
+        const at = Math.max(ctx.currentTime + 0.02, playHead);
+        source.start(at);
+        playHead = at + audio.duration;
+        if (turn && turn.firstSoundAt === undefined) {
+          turn.firstSoundAt = performance.now() + (at - ctx.currentTime) * 1000;
+          setState("speaking");
+        }
+      }
+
+      const seconds = (from, to) =>
+        from === undefined || to === undefined
+          ? "–"
+          : ((to - from) / 1000).toFixed(2);
+
+      function finishTurn(summary) {
+        const done = turn;
+        const wait = Math.max(0, (playHead - ctx.currentTime) * 1000) + 300;
+        setTimeout(() => {
+          const row = document.createElement("tr");
+          const cells = [
+            String(done.number),
+            seconds(done.speechEnd, done.transcriptAt),
+            seconds(done.speechEnd, done.captionAt),
+            seconds(done.speechEnd, done.firstSoundAt),
+            summary.replyFirst.toFixed(2),
+            summary.replyDone.toFixed(2),
+            summary.firstAudio.toFixed(2),
+            summary.costUsd === null ? "–" : "$" + summary.costUsd.toFixed(4),
+          ];
+          for (const text of cells) {
+            const cell = document.createElement("td");
+            cell.textContent = text;
+            row.append(cell);
+          }
+          $("rows").append(row);
+          if (done.firstSoundAt !== undefined) {
+            results.push((done.firstSoundAt - done.speechEnd) / 1000);
+            const sorted = [...results].sort((a, b) => a - b);
+            const middle = Math.floor(sorted.length / 2);
+            const median =
+              sorted.length % 2
+                ? sorted[middle]
+                : (sorted[middle - 1] + sorted[middle]) / 2;
+            $("median").textContent =
+              "話し終えてから声まで: 中央値 " +
+              median.toFixed(2) +
+              "秒（" +
+              sorted.length +
+              "回）";
+          }
+          setState("idle");
+          // The sample is not repeated automatically, so it cannot loop and keep billing.
+          if ($("auto").checked && mode === "mic")
+            startTurn("mic").catch(showError);
+        }, wait);
+      }
+
+      function showError(error) {
+        $("error").textContent =
+          error instanceof Error ? error.message : String(error);
+        setState("idle");
+      }
+
+      const REASONS = {
+        empty_transcript: "声を聞き取れませんでした。もう一度話してください。",
+        turn_limit:
+          "この画面での回数の上限に達しました。サーバーを起動し直してください。",
+        ReadTimeout: "Geminiが30秒以内に応えませんでした。",
+      };
+
+      const ws = new WebSocket("ws://" + location.host + "/ws");
+      ws.binaryType = "arraybuffer";
+      ws.onmessage = (event) => {
+        if (typeof event.data !== "string") return playChunk(event.data);
+        const message = JSON.parse(event.data);
+        const now = performance.now();
+        if (message.type === "ready") {
+          voiceRate = message.voiceSampleRate;
+          setState("idle");
+        } else if (message.type === "heard" && turn) {
+          $("caption").dataset.kind = "heard";
+          $("caption").textContent = "聞き取り中: " + message.text;
+        } else if (message.type === "transcript" && turn) {
+          turn.transcriptAt = now;
+          turn.speechEnd = lastVoiceAt ?? now;
+          if (sampleSource) sampleSource.disconnect();
+          setState("thinking");
+          addLine("participant", message.text);
+        } else if (message.type === "reply" && turn) {
+          turn.captionAt = now;
+          $("caption").dataset.kind = "reply";
+          $("caption").textContent = message.text;
+          addLine("ai", message.text);
+        } else if (message.type === "done" && turn) {
+          finishTurn(message);
+        } else if (message.type === "error") {
+          showError(
+            REASONS[message.reason] ??
+              "失敗しました（" + message.stage + " / " + message.reason + "）",
+          );
+        }
+      };
+      ws.onclose = () => setState("offline");
+      $("talk").onclick = () => startTurn("mic").catch(showError);
+      $("sample").onclick = () => startTurn("sample").catch(showError);
+      $("finish").onclick = () => ws.send(JSON.stringify({ type: "stop" }));
+    </script>
+  </body>
+</html>

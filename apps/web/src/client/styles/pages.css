@@ -1,0 +1,401 @@
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  min-height: 460px;
+  padding: 48px 0;
+}
+.hero-copy h1 {
+  font-size: clamp(30px, 2.7vw, 40px);
+  letter-spacing: -0.04em;
+  line-height: 1.45;
+}
+.hero-copy > p {
+  margin: 20px 0 24px;
+  line-height: 1.9;
+}
+.entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 8px;
+}
+.demo-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin: 14px 0 10px;
+}
+.google-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+}
+.google-btn img {
+  display: block;
+  max-width: 100%;
+}
+.sign-in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.sign-in [aria-live]:empty {
+  display: none;
+}
+.hero-art {
+  padding: 24px 20px 24px 8px;
+}
+.tile-collage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  transform: rotate(-4deg);
+  gap: 4px;
+}
+
+.tile-collage .tile:first-child {
+  transform: translate(9%, 7%) rotate(-5deg);
+}
+.tile-collage .tile:nth-child(2) {
+  transform: translate(-2%, 0) rotate(5deg);
+}
+.tile-collage .tile:nth-child(3) {
+  transform: translate(1%, -1%) rotate(2deg);
+}
+.tile-collage .ai-tile {
+  transform: translate(-3%, -4%) rotate(4deg);
+}
+
+.features,
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.features {
+  border-top: 2px solid var(--ink);
+  padding: 32px 0 56px;
+}
+.feature {
+  padding: 24px;
+}
+.feature-icon,
+.entry-symbol {
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+}
+.feature h2 {
+  margin: 16px 0 8px;
+  font-size: 17px;
+}
+.feature p {
+  line-height: 1.8;
+}
+.workspace,
+.form-page,
+.note-page {
+  padding-block: 40px 64px;
+}
+.workspace > h1,
+.form-page > h1 {
+  margin-bottom: 24px;
+}
+.entrances,
+.join-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.create-entry {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+}
+.create-entry > .symbol {
+  margin-left: auto;
+}
+.create-entry strong,
+.join-code label {
+  font: 400 19px var(--heading);
+}
+.create-entry small {
+  display: block;
+  margin-top: 8px;
+}
+.entry-symbol {
+  border: 2px solid var(--paper);
+  width: 48px;
+  height: 48px;
+}
+.join-code {
+  display: grid;
+  gap: 8px;
+  padding: 24px;
+}
+.input-action input {
+  flex: 1;
+}
+.join-code small {
+  color: #544f46;
+}
+.notebook {
+  margin-top: 40px;
+}
+.recent-rooms {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+}
+.recent-rooms a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+.notebook .section-heading {
+  margin-bottom: 16px;
+}
+.note-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+}
+.note-stripe {
+  height: 14px;
+  border-bottom: 2px solid var(--ink);
+}
+.note-card-inner {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+}
+.note-card-bottom {
+  margin-top: auto;
+  padding-top: 12px;
+  justify-content: space-between;
+}
+.note-excerpt {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+.return-band {
+  background: var(--yellow);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.return-band span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.return-band a {
+  text-decoration: underline;
+}
+.empty-state,
+.dashed {
+  border: 2px dashed var(--ink);
+  border-radius: 8px;
+  padding: 16px;
+}
+.empty-state {
+  text-align: center;
+  padding: 40px;
+}
+.empty-state h3 {
+  margin: 8px 0;
+}
+.form-page,
+.note-page {
+  max-width: 760px;
+}
+.form-panel,
+.devices,
+.room-info,
+.ai-info,
+.note-info {
+  padding: 24px;
+}
+.form-panel,
+.field,
+.join-summary,
+.devices,
+.dialog-options {
+  display: grid;
+  gap: 8px;
+}
+.form-panel,
+.devices {
+  gap: 20px;
+}
+.field,
+.checkline {
+  font-weight: 500;
+}
+.field input,
+.field select {
+  font-weight: 400;
+}
+fieldset {
+  border: 0;
+  min-width: 0;
+  padding: 0;
+}
+legend {
+  font-weight: 500;
+  padding: 0;
+  margin-bottom: 8px;
+}
+.duration-options,
+.presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.select-box,
+.preset label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+}
+.select-box input,
+.preset label input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.select-box span {
+  display: block;
+  text-align: center;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 8px;
+  background: white;
+}
+.select-box input:checked + span {
+  background: var(--ink);
+  color: white;
+}
+.select-box input:focus-visible + span,
+.preset label input:focus-visible + .preset-picture {
+  outline: 3px dashed var(--ink);
+  outline-offset: 3px;
+}
+.presets {
+  grid-template-columns: repeat(3, 1fr);
+}
+.preset {
+  padding: 12px;
+  text-align: center;
+}
+.preset.selected {
+  box-shadow: inset 0 0 0 2px var(--ink);
+  outline: 0;
+}
+.preset-picture {
+  display: grid;
+  place-items: center;
+  height: 90px;
+  position: relative;
+}
+.preset-picture .face {
+  --face-width: 54px;
+}
+.selected-check {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  background: var(--ink);
+  color: white;
+  border-radius: 4px;
+  padding: 2px;
+  display: flex;
+}
+.selected-check .symbol {
+  width: 14px;
+  height: 14px;
+}
+.preset label strong {
+  display: block;
+  margin: 6px auto 2px;
+}
+.voice .symbol {
+  width: 16px;
+  height: 16px;
+}
+.dialog {
+  width: min(460px, calc(100% - 40px));
+  margin: auto;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 24px;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.dialog::backdrop {
+  background: rgb(17 17 17/0.55);
+}
+.dialog-heading,
+.note-tools {
+  justify-content: space-between;
+}
+.dialog > * + * {
+  margin-top: 16px;
+}
+.copy-control {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+.error-page {
+  min-height: 65vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+.error-icon {
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  transform: rotate(-7deg);
+}
+.error-icon .symbol {
+  width: 32px;
+  height: 32px;
+}
+
+.note-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 272px), 1fr));
+}

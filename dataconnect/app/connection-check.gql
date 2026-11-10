@@ -1,0 +1,19 @@
+mutation WriteConnectionCheck($id: UUID!, $marker: String!)
+@auth(level: NO_ACCESS)
+@transaction {
+  # Reclaim checks interrupted after the write, without touching active requests.
+  connectionCheck_deleteMany(
+    where: { createdAt: { lt_expr: "request.time - duration('24h')" } }
+  )
+  connectionCheck_upsert(data: { id: $id, marker: $marker })
+}
+
+query ReadConnectionCheck($id: UUID!) @auth(level: NO_ACCESS) {
+  connectionCheck(id: $id) {
+    marker
+  }
+}
+
+mutation RemoveConnectionCheck($id: UUID!) @auth(level: NO_ACCESS) {
+  connectionCheck_deleteMany(where: { id: { eq: $id } })
+}

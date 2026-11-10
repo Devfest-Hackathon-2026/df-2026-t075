@@ -1,0 +1,45 @@
+{
+  "name": "@ai-classroom/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0 <23"
+  },
+  "scripts": {
+    "demo:live-map": "node --env-file-if-exists=.env.local scripts/run-live-map.mjs",
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build && node scripts/prepare-standalone.mjs",
+    "start": "HOSTNAME=127.0.0.1 node .next/standalone/apps/web/server.js",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write . --ignore-path ../../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore"
+  },
+  "dependencies": {
+    "@material-symbols/svg-600": "0.48.3",
+    "firebase": "12.19.0",
+    "firebase-admin": "14.5.0",
+    "google-auth-library": "11.3.3",
+    "livekit-client": "2.22.0",
+    "livekit-server-sdk": "2.19.2",
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "ws": "8.22.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitest/coverage-v8": "5.1.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.5",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}
