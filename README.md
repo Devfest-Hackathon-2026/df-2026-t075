@@ -1,5 +1,7 @@
 # DevFest Hackathon 2026 提出用リポジトリ
 
+作品URL：[AInote を開く](https://hackathon-7314b.web.app/)
+
   DevFest Hackathon 2026 のチームの **最終提出用** リポジトリです。提出期限までに、作品のコードと資料をこのリポジトリに置いてください。
 
   このリポジトリは **公開（public）** です。開催中も、運営・審査員・ほかの参加者が見られます。
