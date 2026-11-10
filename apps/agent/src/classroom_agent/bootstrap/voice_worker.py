@@ -5,9 +5,11 @@ import asyncio
 import logging
 import os
 import signal
+from collections.abc import Awaitable, Callable
 from contextlib import AsyncExitStack
+from functools import partial
 
-from livekit.agents import AgentServer, JobContext, JobExecutorType
+from livekit.agents import AgentServer, JobContext, JobExecutorType, JobRequest
 
 from classroom_agent.bootstrap.settings import (
     DEFAULT_REPLY_MODEL,
@@ -57,18 +59,37 @@ async def meeting_job(ctx: JobContext) -> None:
     await meeting_voice.run_meeting_room(ctx, open_providers, MeetingContext)
 
 
-def probe_load(server: AgentServer) -> float:
-    # The SDK also reserves a pending slot before the accepted room becomes active.
-    return float(bool(server.active_jobs))
+def room_load(server: AgentServer, *, capacity: int) -> float:
+    return min(len(server.active_jobs) / capacity, 1.0)
 
 
-async def serve(meeting: bool = False) -> None:
+def meeting_request_handler(
+    server: AgentServer, capacity: int
+) -> Callable[[JobRequest], Awaitable[None]]:
+    launching: set[str] = set()
+
+    async def on_request(request: JobRequest) -> None:
+        occupied = launching.union(job.job.id for job in server.active_jobs)
+        if len(occupied) >= capacity or request.id in occupied:
+            await request.reject(terminate=False)
+            return
+        # Reserve on the worker event loop before accept yields to another request.
+        launching.add(request.id)
+        try:
+            await meeting_voice.accept_meeting(request)
+        finally:
+            launching.remove(request.id)
+
+    return on_request
+
+
+async def serve(meeting: bool = False, capacity: int = 1) -> None:
     server = AgentServer(
         host="127.0.0.1",
         port=0,
         num_idle_processes=0,
         job_executor_type=JobExecutorType.THREAD,
-        load_fnc=probe_load,
+        load_fnc=partial(room_load, capacity=capacity),
         load_threshold=1.0,
     )
     server.on(
@@ -79,7 +100,7 @@ async def serve(meeting: bool = False) -> None:
         server.rtc_session(
             meeting_job,
             agent_name=meeting_voice.AGENT_NAME,
-            on_request=meeting_voice.accept_meeting,
+            on_request=meeting_request_handler(server, capacity),
         )
     else:
         server.rtc_session(job, agent_name=AGENT_NAME, on_request=accept_probe)
@@ -117,12 +138,20 @@ def main(*, meeting: bool = False) -> int:
         invalid_fields += ("GEMINI_MODEL",)
     if reply_thinking(meeting) not in THINKING_LEVELS:
         invalid_fields += ("GEMINI_THINKING_LEVEL",)
+    capacity = 1
+    if meeting:
+        try:
+            capacity = int(os.environ.get("MEETING_MAX_ROOMS_PER_WORKER", "1"))
+        except ValueError:
+            capacity = 0
+        if not 1 <= capacity <= 10:
+            invalid_fields += ("MEETING_MAX_ROOMS_PER_WORKER",)
     if invalid_fields:
         logger.error("configuration_invalid", extra={"invalid_fields": invalid_fields})
         return 2
     logger.info("voice_worker_starting")
     try:
-        asyncio.run(serve(meeting))
+        asyncio.run(serve(meeting, capacity))
     except (asyncio.CancelledError, KeyboardInterrupt):
         pass
     except Exception:

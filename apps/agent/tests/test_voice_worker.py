@@ -5,16 +5,98 @@ from contextlib import AsyncExitStack
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from livekit.agents import JobRequest
 
 from classroom_agent.bootstrap import voice_worker
 
 
-def test_worker_capacity_is_one_trial_at_a_time() -> None:
+@pytest.mark.parametrize(
+    ("capacity", "jobs", "load"),
+    [(1, 0, 0.0), (1, 1, 1.0), (5, 0, 0.0), (5, 3, 0.6), (5, 5, 1.0), (5, 6, 1.0)],
+)
+def test_room_load(capacity: int, jobs: int, load: float) -> None:
     server = MagicMock()
-    server.active_jobs = []
-    assert voice_worker.probe_load(server) == 0.0
-    server.active_jobs = [MagicMock()]
-    assert voice_worker.probe_load(server) == 1.0
+    server.active_jobs = [MagicMock() for _ in range(jobs)]
+    assert voice_worker.room_load(server, capacity=capacity) == load
+
+
+def test_pending_jobs_share_the_limit_with_running_jobs() -> None:
+    async def check() -> None:
+        server = MagicMock()
+        running = MagicMock()
+        running.job.id = "already-running"
+        server.active_jobs = [running]
+        handle = voice_worker.meeting_request_handler(server, capacity=6)
+
+        def request(job_id: str) -> AsyncMock:
+            req = AsyncMock(spec=JobRequest)
+            req.id = job_id
+            req.room.name = "meeting-2495a326-91fe-4a3d-931e-4593f77fabd2"
+            req.job.metadata = "ノト"
+            return req
+
+        started = asyncio.Queue[None]()
+        release = asyncio.Event()
+
+        async def wait_for_assignment(*, name: str, identity: str) -> None:
+            started.put_nowait(None)
+            await release.wait()
+
+        tasks: list[asyncio.Future[None]] = []
+        for i in range(5):
+            req = request(str(i))
+            req.accept.side_effect = wait_for_assignment
+            tasks.append(asyncio.ensure_future(handle(req)))
+        try:
+            for _ in tasks:
+                await asyncio.wait_for(started.get(), timeout=2)
+            overflow = request("next")
+            await handle(overflow)
+            overflow.reject.assert_awaited_once_with(terminate=False)
+            overflow.accept.assert_not_awaited()
+
+            tasks[0].cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await tasks[0]
+            await handle(overflow)
+            overflow.accept.assert_awaited_once()
+
+            # The SDK can expose a job as running before its accept call returns.
+            launching = MagicMock()
+            launching.job.id = "1"
+            server.active_jobs.append(launching)
+            available = request("another")
+            await handle(available)
+            available.accept.assert_awaited_once()
+        finally:
+            release.set()
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize(
+    ("meeting", "value", "expected"),
+    [(True, None, 1), (True, "5", 5), (False, "5", 1), (True, "11", None), (True, "bad", None)],
+)
+def test_worker_room_limit(
+    monkeypatch: pytest.MonkeyPatch, meeting: bool, value: str | None, expected: int | None
+) -> None:
+    for key in ("LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET", "GOOGLE_CLOUD_PROJECT"):
+        monkeypatch.setenv(key, "test-value")
+    monkeypatch.setenv("MEETING_WEB_ORIGIN", "https://example.org")
+    monkeypatch.setenv("MEETING_WORKER_AUDIENCE", "https://example.org")
+    if value is None:
+        monkeypatch.delenv("MEETING_MAX_ROOMS_PER_WORKER", raising=False)
+    else:
+        monkeypatch.setenv("MEETING_MAX_ROOMS_PER_WORKER", value)
+    with patch.object(logging, "basicConfig"), patch.object(voice_worker, "serve") as serve:
+        if expected is None:
+            assert voice_worker.main(meeting=meeting) == 2
+            serve.assert_not_called()
+        else:
+            assert voice_worker.main(meeting=meeting) == 0
+            serve.assert_awaited_once_with(meeting, expected)
 
 
 def test_worker_requires_its_own_explicit_settings(
