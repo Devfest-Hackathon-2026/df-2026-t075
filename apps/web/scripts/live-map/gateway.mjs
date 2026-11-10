@@ -350,6 +350,9 @@ export function gateway({
           if (Date.now() - lastText < 500 || !room.map.text(member.name, text))
             return fail(ws, "limit");
           lastText = Date.now();
+        } else if (m.type === "research") {
+          const code = room.map.research(m.id, m.retryId);
+          if (code) fail(ws, code);
         } else if (member.host && ["retry", "skip"].includes(m.type))
           room.map.recover(m.id, m.type === "skip");
       });

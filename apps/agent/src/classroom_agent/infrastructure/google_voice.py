@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import re
 from collections.abc import AsyncGenerator
 from contextlib import aclosing
 from typing import cast
@@ -140,10 +141,10 @@ class GoogleVoice:
                 "共有メモから特定し、金額・単位・上限などをパート名またはねらいに明記する。"
                 "条件が特定できなければツールを使わずに確認する。"
                 "必要な操作をすべて含め、合計時間と固定の振り返り2分を守る。"
-                "今回の依頼で明示的に公開資料の調査を頼まれたらresearch_public_dataを一度使う。"
+                "公開情報の調査、または現職・最新の制度・現在の料金など、時点で変わる外部の事実を聞かれたら、「教えて」という聞き方でもsearch_webを使う。千葉市民会館の現行基本料金と年央人口だけはresearch_public_dataを使う。会議内の現在の予定や残り時間は進行状況から答える。"
                 "「これ調べて」の対象を直前の会話や議題から特定し、曖昧なら検索せず何を調べるか尋ねる。"
-                "予定変更と調査を同時に頼まれたら先に調査だけを行う。調査を頼まれたときに記憶から答えない。専用資料の対象外の公開情報にはwebを使う。私的な会議情報は外部検索しない。"
-                "その他の質問だけならツールを使わず短く答える。実行結果を予告しない。"
+                "予定変更と調査を同時に頼まれたら先に調査だけを行う。調査を頼まれたときに記憶から答えない。専用資料の対象外の公開情報にはsearch_webを使う。私的な会議情報は外部検索しない。"
+                "会議内の情報で完結する回答・確認質問にはanswer_meetingを使う。調査の予告を回答にしない。"
             ),
         )
 
@@ -214,11 +215,11 @@ class GoogleVoice:
                 types.FunctionDeclaration(
                     name="research_public_data",
                     description=(
-                        "今回明示された調査。questionは施設や年・利用区分を含む短い質問要旨。"
+                        "二種類の専用資料（千葉市民会館の基本料金・国別の年央人口）を取得する。"
                         "会話の引用や個人情報を含めない。hall_feeは千葉市民会館の現行基本料金のみで"
                         "facilityとday必須。指定のないhallとslotは省略。"
                         "populationは指定の国・地域の年央総人口だけでcountry必須、最新ならyear省略。"
-                        "その他の公開情報にはwebを使い、元の条件を保った検索用のquestionだけを渡す。会議固有の非公開情報・連絡先・発言引用は渡さない。"
+                        "その他の公開情報はsearch_webを使う。"
                     ),
                     parameters_json_schema={
                         "type": "object",
@@ -226,7 +227,7 @@ class GoogleVoice:
                         "properties": {
                             "source": {
                                 "type": "string",
-                                "enum": ["hall_fee", "population", "web", "unsupported"],
+                                "enum": ["hall_fee", "population", "unsupported"],
                             },
                             "question": {"type": "string"},
                             "facility": {"type": "string", "enum": ["千葉市民会館"]},
@@ -246,36 +247,78 @@ class GoogleVoice:
                     },
                 )
             )
-        response = await self.vertex.models.generate_content(
-            model=self.reply_model,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=instruction,
-                tools=[types.Tool(function_declarations=declarations)],
-                tool_config=(
-                    types.ToolConfig(
-                        function_calling_config=types.FunctionCallingConfig(
-                            mode=types.FunctionCallingConfigMode.ANY
-                        )
-                    )
-                    if structured
-                    else None
-                ),
-                automatic_continuation=False,
-                max_output_tokens=2048,
-                thinking_config=thinking_config(self.reply_thinking),
+            declarations.append(
+                types.FunctionDeclaration(
+                    name="search_web",
+                    description="一般の公開情報をWeb検索する。「現在の総理を教えて」のような現職や最新情報にはこれを使う。対象・国・時点などの条件を検索質問に含め、非公開情報や発言の引用は送らない。",
+                    parameters_json_schema={
+                        "type": "object",
+                        "required": ["question"],
+                        "properties": {"question": {"type": "string"}},
+                    },
+                )
+            )
+            declarations.append(
+                types.FunctionDeclaration(
+                    name="answer_meeting",
+                    description="共有済みの会議内容や一般的な助言ですぐ回答できる場合、または対象が曖昧で聞き返す場合だけ使う。現職や最新情報は必ずsearch_web。",
+                    parameters_json_schema={
+                        "type": "object",
+                        "required": ["answer"],
+                        "properties": {"answer": {"type": "string"}},
+                    },
+                )
+            )
+        config = types.GenerateContentConfig(
+            system_instruction=instruction,
+            tools=[types.Tool(function_declarations=declarations)],
+            tool_config=types.ToolConfig(
+                function_calling_config=types.FunctionCallingConfig(
+                    mode=types.FunctionCallingConfigMode.ANY
+                )
             ),
+            automatic_continuation=False,
+            max_output_tokens=2048,
+            thinking_config=thinking_config(self.reply_thinking),
+        )
+        response = await self.vertex.models.generate_content(
+            model=self.reply_model, contents=prompt, config=config
         )
         calls = response.function_calls
-        if not calls:
-            return spoken_text(response.text or "")
-        if not structured and sorted(c.name or "" for c in calls) == [
-            "propose_agenda",
-            "research_public_data",
-        ]:
-            calls = [c for c in calls if c.name == "research_public_data"]
+        if not calls or (len(calls) == 1 and calls[0].name == "answer_meeting" and not structured):
+            answer = spoken_text(
+                str((calls[0].args or {}).get("answer", "")) if calls else response.text or ""
+            )
+            if structured or not re.search(
+                r"(?:調べ|確認|検索|調査)(?:て(?:み|き)|し|いたし)?ます|"
+                r"(?:お調べ|確認|検索|調査)(?:し|いたし)ます|"
+                r"(?:少々|しばらく)お待ち",
+                answer,
+            ):
+                return answer
+            # A promise is not a queued job. Recover once using the original request and context.
+            config.tool_config = types.ToolConfig(
+                function_calling_config=types.FunctionCallingConfig(
+                    mode=types.FunctionCallingConfigMode.ANY,
+                    allowed_function_names=["research_public_data", "search_web"],
+                )
+            )
+            response = await self.vertex.models.generate_content(
+                model=self.reply_model, contents=prompt, config=config
+            )
+            calls = response.function_calls
+            if not calls or any(
+                c.name not in ("research_public_data", "search_web") for c in calls
+            ):
+                return "調査を開始できませんでした。調べたい対象をもう一度教えてください。"
+        if not structured and len(calls) == 2 and any(c.name == "propose_agenda" for c in calls):
+            searches = [c for c in calls if c.name in ("research_public_data", "search_web")]
+            if searches:
+                calls = searches
         if len(calls) != 1 or calls[0].args is None:
             raise ValueError("unexpected_meeting_tool")
+        if calls[0].name == "search_web" and not structured:
+            return {"research": {"source": "web", "question": calls[0].args.get("question")}}
         if calls[0].name == "research_public_data" and not structured:
             return {"research": calls[0].args}
         if calls[0].name != "propose_agenda":

@@ -34,13 +34,15 @@ export function DiscussionMap({
   selectedId,
   onSelect,
   onRequestResearch,
+  canResearch,
 }: {
   graph: DiscussionGraph;
   utterances: Utterance[];
   speakerColors: ReadonlyMap<string, string>;
   selectedId: string;
   onSelect: (id: string) => void;
-  onRequestResearch?: (id: string) => void;
+  onRequestResearch?: (id: string, retryId?: string) => void;
+  canResearch?: (id: string) => boolean;
 }) {
   const chart = useRef<HTMLElement>(null);
   const { columns, rows, edges, pendingByIdea, evidenceByNode } = useMemo(
@@ -73,11 +75,37 @@ export function DiscussionMap({
       heading.focus();
     }
   }
+  function researchButton(node: MapNode) {
+    if (
+      !onRequestResearch ||
+      (canResearch && !canResearch(node.id)) ||
+      (node.kind === "question" && node.status !== "open") ||
+      (node.research && !node.research.retryId)
+    )
+      return null;
+    const label = node.research?.retryId
+      ? "もう一度調べてもらう"
+      : "AIに調べてもらう";
+    return (
+      <button
+        type="button"
+        className="small-action map-request"
+        aria-label={`「${node.text}」を${label}`}
+        onClick={() => {
+          onRequestResearch(node.id, node.research?.retryId);
+          showEvidence(node.id);
+          evidenceHeading.current?.focus();
+        }}
+      >
+        {label}
+      </button>
+    );
+  }
   function renderCard(
     node: MapNode,
     { isTopic = false, topicWide = false } = {},
   ) {
-    return (
+    const card = (
       <MapNodeCard
         key={node.id}
         node={node}
@@ -90,6 +118,25 @@ export function DiscussionMap({
         speakerColors={speakerColors}
         onSelect={showEvidence}
       />
+    );
+    const request = node.kind === "question" && researchButton(node);
+    if (!node.research && !request) return card;
+    return (
+      <div className="map-check" key={node.id}>
+        {card}
+        {node.research && (
+          <div className="map-card-finding">
+            <ResearchFinding
+              research={node.research}
+              showAnswer={
+                node.research.state === "looking" ||
+                node.text !== node.research.answer
+              }
+            />
+          </div>
+        )}
+        {request}
+      </div>
     );
   }
   function renderBranchNode(node: MapNode, topicWide: boolean) {
@@ -104,27 +151,7 @@ export function DiscussionMap({
             role="group"
             aria-label={`「${node.text}」の確認事項`}
           >
-            {checks.map((check) => (
-              <div key={check.id} className="map-check">
-                {renderCard(check)}
-                {onRequestResearch &&
-                  check.status === "open" &&
-                  !check.research && (
-                    <button
-                      type="button"
-                      className="small-action map-request"
-                      aria-label={`「${check.text}」をAIに調べてもらう`}
-                      onClick={() => {
-                        onRequestResearch(check.id);
-                        showEvidence(check.id);
-                        evidenceHeading.current?.focus();
-                      }}
-                    >
-                      AIに調べてもらう
-                    </button>
-                  )}
-              </div>
-            ))}
+            {checks.map((check) => renderCard(check))}
           </div>
         )}
       </div>
@@ -219,12 +246,15 @@ export function DiscussionMap({
             <p className="map-evidence-subject">
               {selected.research?.question ?? selected.text}
             </p>
+            {researchButton(selected)}
             {selected.research && (
               <div className="map-research-finding" role="status">
                 <ResearchFinding research={selected.research} />
-                {selected.status === "confirmed" && !selected.reportedBy && (
-                  <p>参加者の確認結果：{selected.text}</p>
-                )}
+                {selected.kind === "question" &&
+                  selected.status === "confirmed" &&
+                  !selected.reportedBy && (
+                    <p>参加者の確認結果：{selected.text}</p>
+                  )}
               </div>
             )}
             <ol className="map-quotes">

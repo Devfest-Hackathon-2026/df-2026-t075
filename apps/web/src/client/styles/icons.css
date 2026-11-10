@@ -7,6 +7,15 @@
 .icon-note {
   --symbol: url("@material-symbols/svg-600/sharp/edit_note.svg");
 }
+.icon-chat {
+  --symbol: url("@material-symbols/svg-600/sharp/forum.svg");
+}
+.icon-search {
+  --symbol: url("@material-symbols/svg-600/sharp/search.svg");
+}
+.icon-discussion-map {
+  --symbol: url("@material-symbols/svg-600/sharp/account_tree.svg");
+}
 .icon-forward {
   --symbol: url("@material-symbols/svg-600/sharp/arrow_forward.svg");
 }

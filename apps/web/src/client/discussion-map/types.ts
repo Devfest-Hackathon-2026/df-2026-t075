@@ -3,13 +3,15 @@ export type Utterance = { id: string; speaker: string; text: string };
 export type MapReaction = "agree" | "disagree";
 export type EvidenceRelation = "supports" | "opposes" | "informs";
 
-export type MapResearch = { question: string } & (
+type ResearchSource = { publisher: string; title: string; href: string };
+export type MapResearch = { question: string; retryId?: string } & (
   | { state: "looking" }
   | {
-      state: "answered" | "unverified";
+      state: "answered";
       answer: string;
-      source: { publisher: string; title: string; href: string };
+      source: ResearchSource;
     }
+  | { state: "unverified" | "failed"; answer: string; source?: ResearchSource }
 );
 
 export type MapNode = {

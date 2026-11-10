@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { DiscussionMap } from "../discussion-map/discussion-map";
+import { ResearchReferences } from "../discussion-map/research-finding";
 import {
   getSpeakerColors,
   SpeakerBadge,
@@ -513,6 +514,10 @@ function ConnectedMap({
           speakerColors={colors}
           selectedId={selected || state.graph.nodes[0]!.id}
           onSelect={setSelected}
+          {...(state.researchAvailable && {
+            onRequestResearch: (id: string, retryId?: string) =>
+              send({ type: "research", id, retryId }),
+          })}
         />
       ) : (
         <div className="panel live-empty">
@@ -521,6 +526,7 @@ function ConnectedMap({
           <p>「何を決めたいか」「どんな案があるか」を話してみてください。</p>
         </div>
       )}
+      <ResearchReferences nodes={state.graph.nodes} />
     </>
   );
 }

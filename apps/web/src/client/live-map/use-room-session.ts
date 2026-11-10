@@ -18,6 +18,7 @@ export type Turn = Utterance & {
 };
 type State = {
   mappingEnabled?: boolean;
+  researchAvailable?: boolean;
   members: { name: string; connected: boolean; mic: boolean }[];
   turns: Turn[];
   graph: DiscussionGraph;
@@ -42,6 +43,12 @@ const empty: State = {
   canRetry: true,
 };
 const errors: Record<string, string> = {
+  "research-busy":
+    "別のカードを調査中です。結果が届いてからもう一度押してください。",
+  "research-limit": "この部屋で調べられる回数に達しました。",
+  "research-stale":
+    "このカードの確認状況が変わりました。最新のカードを選んでください。",
+  "research-unavailable": "現在、この部屋では外部検索を利用できません。",
   membership: "参加状態が変わりました。部屋を開き直してください。",
   "room-busy":
     "この部屋に接続できませんでした。少し待ってからもう一度参加してください。",
@@ -222,6 +229,10 @@ export function useRoomSession(member?: MemberSession) {
               : "部屋が終了しました。発言とマップを消去しました。",
         );
       } else if (m.type === "error") {
+        if (typeof m.code === "string" && m.code.startsWith("research-")) {
+          setNotice(errors[m.code] ?? "調査を開始できませんでした。");
+          return;
+        }
         rejected = true;
         setError(errors[m.code] ?? "操作に失敗しました。");
         if (m.code === "expired") forgetDemo();

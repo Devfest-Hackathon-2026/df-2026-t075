@@ -153,6 +153,31 @@
   color: #263f8d;
   text-decoration: underline;
 }
+.map-card-finding {
+  display: grid;
+  gap: 3px;
+  padding: 4px 6px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.map-card-finding a {
+  color: #263f8d;
+  text-decoration: underline;
+}
+.map-references {
+  margin-top: 16px;
+  padding: 18px 20px;
+}
+.map-references ul {
+  display: grid;
+  gap: 12px;
+  padding-left: 1.25rem;
+  margin: 10px 0 0;
+}
+.map-references h3 {
+  font: inherit;
+  font-weight: 600;
+}
 .map-pending-checks .map-node {
   background: #fff6df;
   border: 1px dashed #796237;

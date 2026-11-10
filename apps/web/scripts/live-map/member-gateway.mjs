@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { WebSocket, WebSocketServer } from "ws";
 import { voiceGate, frameBytes } from "./audio.mjs";
 import { discussion } from "./discussion.mjs";
+import { roomResearchBudget } from "./card-research.mjs";
 
 const send = (ws, data) => {
   if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(data));
@@ -80,13 +81,19 @@ export function memberGateway({ services, access, allowedOrigins }) {
       lease,
       generation,
       people: new Map(),
+      researchBudget: roomResearchBudget(),
       expires: Date.now() + 30 * 60_000,
     };
     if (closed) {
       await access.release(lease, generation);
       return null;
     }
-    room.map = discussion(services, () => publish(room));
+    room.map = discussion(
+      services,
+      () => publish(room),
+      Date.now,
+      room.researchBudget,
+    );
     rooms.set(room.id, room);
     const expire = (lease) => {
       clearTimeout(room.deadline);
@@ -252,6 +259,13 @@ export function memberGateway({ services, access, allowedOrigins }) {
           lastText = Date.now();
           break;
         }
+        case "research": {
+          const code = room.map
+            ? room.map.research(m.id, m.retryId)
+            : "research-stale";
+          if (code) send(ws, { type: "error", code });
+          break;
+        }
         case "retry":
         case "skip":
           if (member.host) room.map?.recover(m.id, m.type === "skip");
@@ -267,7 +281,12 @@ export function memberGateway({ services, access, allowedOrigins }) {
           break;
         case "start-map":
           if (member.host && !room.map) {
-            room.map = discussion(services, () => publish(room));
+            room.map = discussion(
+              services,
+              () => publish(room),
+              Date.now,
+              room.researchBudget,
+            );
             publish(room);
           }
           break;

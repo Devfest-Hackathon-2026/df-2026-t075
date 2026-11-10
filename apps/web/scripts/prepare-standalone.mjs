@@ -28,6 +28,7 @@ for (const file of [
   "live-map/audio.mjs",
   "live-map/cloud.mjs",
   "live-map/discussion.mjs",
+  "live-map/card-research.mjs",
   "map-classification/vertex.mjs",
 ]) {
   await cp(
@@ -36,6 +37,16 @@ for (const file of [
   );
 }
 const require = createRequire(import.meta.url);
+// Next's HTTP entry points never import the relay's MCP client. Trace the
+// separate entry so its runtime dependencies also ship in the common image.
+const root = path.resolve(appRoot, "../..");
+const { nodeFileTrace } = require("next/dist/compiled/@vercel/nft");
+const { fileList } = await nodeFileTrace(
+  [path.join(appRoot, "scripts/live-map/search-web.mjs")],
+  { base: root },
+);
+for (const file of fileList)
+  await cp(path.join(root, file), path.resolve(output, "../..", file));
 await cp(
   path.dirname(require.resolve("ws/package.json")),
   path.join(output, "node_modules/ws"),

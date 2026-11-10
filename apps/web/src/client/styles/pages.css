@@ -85,6 +85,7 @@
 }
 .feature {
   padding: 24px;
+  word-break: auto-phrase;
 }
 .feature-icon,
 .entry-symbol {
@@ -95,9 +96,11 @@
 .feature h2 {
   margin: 16px 0 8px;
   font-size: 17px;
+  text-wrap: balance;
 }
 .feature p {
   line-height: 1.8;
+  text-wrap: pretty;
 }
 .workspace,
 .form-page,

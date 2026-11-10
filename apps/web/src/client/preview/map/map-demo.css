@@ -85,20 +85,6 @@
   justify-content: flex-start;
   text-align: left;
 }
-.map-references {
-  margin-top: 16px;
-  padding: 18px 20px;
-}
-.map-references ul {
-  display: grid;
-  gap: 12px;
-  padding-left: 1.25rem;
-  margin: 10px 0 0;
-}
-.map-references h3 {
-  font: inherit;
-  font-weight: 600;
-}
 @media (max-width: 720px) {
   .map-page {
     padding-block: 18px 40px;

@@ -167,10 +167,20 @@ def test_meeting_has_one_tool_and_keeps_plain_answers_and_unexpected_calls_separ
             )
             generate = AsyncMock(
                 side_effect=[
-                    response(text="はい"),
+                    called(
+                        [
+                            types.Part(
+                                function_call=types.FunctionCall(
+                                    name="answer_meeting", args={"answer": "はい"}
+                                )
+                            )
+                        ]
+                    ),
                     called([call]),
                     called([call, call]),
                     called([call, research]),
+                    response(text="公開情報から確認いたしますので少々お待ちください。"),
+                    called([research]),
                 ]
             )
             client.return_value.aio.models.generate_content = generate
@@ -180,10 +190,35 @@ def test_meeting_has_one_tool_and_keeps_plain_answers_and_unexpected_calls_separ
             args = generate.await_args.kwargs
             assert args["config"].tools[0].function_declarations[0].name == "propose_agenda"
             assert args["config"].automatic_continuation is False
+            assert args["config"].tool_config.function_calling_config.mode == "ANY"
             with pytest.raises(ValueError, match="unexpected_meeting_tool"):
                 await voice.propose_or_answer("予定を変更")
             assert await voice.propose_or_answer("調査して予定も変えて") == {
                 "research": {"source": "population"}
+            }
+
+            assert await voice.propose_or_answer("現在の総理について教えて") == {
+                "research": {"source": "population"}
+            }
+            forced = generate.await_args.kwargs["config"].tool_config.function_calling_config
+            assert forced.allowed_function_names == ["research_public_data", "search_web"]
+            tools = generate.await_args.kwargs["config"].tools[0].function_declarations
+            web = next(tool for tool in tools if tool.name == "search_web")
+            assert set(web.parameters_json_schema["properties"]) == {"question"}
+            generate.side_effect = [
+                called(
+                    [
+                        types.Part(
+                            function_call=types.FunctionCall(
+                                name="search_web",
+                                args={"question": "日本の現在の総理大臣は？", "country": "JP"},
+                            )
+                        )
+                    ]
+                )
+            ]
+            assert await voice.propose_or_answer("現在の総理は？") == {
+                "research": {"source": "web", "question": "日本の現在の総理大臣は？"}
             }
 
     asyncio.run(run())

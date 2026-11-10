@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { SymbolIcon } from "../../components/blocks";
 import { DiscussionMap } from "../../discussion-map/discussion-map";
-import { ResearchFinding } from "../../discussion-map/research-finding";
+import { ResearchReferences } from "../../discussion-map/research-finding";
 import {
   getSpeakerColors,
   SpeakerBadge,
@@ -193,32 +193,16 @@ export function MapDemo({
         speakerColors={speakerColors}
         selectedId={choice ?? suggested?.id ?? ""}
         onSelect={setChoice}
-        {...(mode === "example" && { onRequestResearch: requestResearch })}
+        {...(mode === "example" && {
+          onRequestResearch: requestResearch,
+          canResearch: (id: string) => !!questionForRequest(graph, id),
+        })}
       />
-      {requests.some((item) => item.done) && (
-        <section className="panel map-references" aria-label="参考資料">
-          <h2>参考資料</h2>
-          <ul>
-            {requests
-              .filter((item) => item.done)
-              .map(({ id }) => {
-                const research = graph.nodes.find(
-                  (node) => node.id === id,
-                )?.research;
-                return (
-                  research && (
-                    <li key={id}>
-                      <h3>{research.question}</h3>
-                      <div className="map-research-finding">
-                        <ResearchFinding research={research} />
-                      </div>
-                    </li>
-                  )
-                );
-              })}
-          </ul>
-        </section>
-      )}
+      <ResearchReferences
+        nodes={requests.flatMap(({ id }) =>
+          graph.nodes.filter((node) => node.id === id),
+        )}
+      />
       {voiceOpen && (
         <Dialog title="AIに話す" onClose={() => setVoiceOpen(false)}>
           <p>デモではマイクの代わりに、この場面で話したいひと言を選びます。</p>

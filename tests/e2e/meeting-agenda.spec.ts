@@ -389,7 +389,11 @@ test("a former member can reopen the finished notebook and an unjoined user cann
       (await tab.request.get(dbUrl + room.path, { headers })).status(),
     ).toBe(403);
     await tab.goto("/rooms/" + room.id + "/note");
-    await expect(tab.getByRole("alert")).toBeVisible();
+    await expect(
+      tab
+        .getByRole("alert")
+        .filter({ hasText: "進行メモを見るには部屋に入室してください。" }),
+    ).toBeVisible();
     await expect(tab.getByText("会場費の上限は3万円")).toHaveCount(0);
   } finally {
     await other.close();

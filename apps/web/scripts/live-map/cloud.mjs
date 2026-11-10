@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { applicationDefault } from "firebase-admin/app";
 import { classify, responseSchema } from "../map-classification/vertex.mjs";
+import { webResearch } from "./search-web.mjs";
 
 // Use the same versioned definitions as the Firestore seed, without writing
 // any real conversation into the persistent synthetic evaluation dataset.
@@ -19,6 +20,7 @@ export async function liveServices(project) {
   );
   const schema = responseSchema(definition);
   return {
+    research: webResearch(project, credential, process.env.EXA_API_KEY),
     async recognize(pcm, signal) {
       const token = await credential.getAccessToken();
       const res = await fetch(

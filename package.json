@@ -20,7 +20,7 @@
     "test:coverage": "npm run test:coverage --workspace @ai-classroom/web",
     "test:runtime": "node --test tests/runtime/standalone.test.mjs",
     "test:db": "node --test tests/runtime/database-live.test.mjs",
-    "test:scripts": "node --test scripts/docker-check.test.mjs apps/web/scripts/map-classification/classification.test.mjs apps/web/scripts/live-map/discussion.test.mjs",
+    "test:scripts": "node --test scripts/docker-check.test.mjs apps/web/scripts/map-classification/classification.test.mjs apps/web/scripts/live-map/discussion.test.mjs apps/web/scripts/live-map/card-research.test.mjs",
     "architecture": "depcruise apps/web/src --config .dependency-cruiser.cjs && node --test scripts/architecture.test.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

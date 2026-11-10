@@ -1,3 +1,5 @@
+import { cardResearch, roomResearchBudget } from "./card-research.mjs";
+
 // Only resend the most recent transcripts to the model. The room keeps the
 // complete map and all of its source turns until it ends.
 const transcriptWindow = 60;
@@ -5,7 +7,13 @@ const maxPendingTurns = 12;
 
 // One in-memory queue per room. STT can finish out of order; only the next
 // accepted turn can update the graph. Audio playout never waits for this queue.
-export function discussion({ recognize, predict }, changed, now = Date.now) {
+export function discussion(
+  { recognize, predict, research },
+  changed,
+  now = Date.now,
+  budget = roomResearchBudget(),
+) {
+  const findings = cardResearch(research, changed, budget);
   const controller = new AbortController();
   const turns = [];
   let graph = { nodes: [], edges: [] },
@@ -48,6 +56,7 @@ export function discussion({ recognize, predict }, changed, now = Date.now) {
           const result = await predict(heard, graph, controller.signal);
           if (!live()) return;
           graph = result;
+          findings.reconcile(graph);
           turn.state = "mapped";
           turn.delayMs = now() - turn.receivedAt;
           cursor++;
@@ -65,11 +74,15 @@ export function discussion({ recognize, predict }, changed, now = Date.now) {
   }
   return {
     snapshot: () => ({
-      graph,
+      graph: findings.graph(graph),
+      researchAvailable: findings.available,
       turns,
       waiting: turns.length - cursor,
       canRetry: retries < 2,
     }),
+    research(id, retryId) {
+      if (live()) return findings.request(graph, id, retryId);
+    },
     text(speaker, text) {
       if (!add(speaker, text)) return false;
       void pump();
@@ -112,6 +125,7 @@ export function discussion({ recognize, predict }, changed, now = Date.now) {
     },
     end() {
       controller.abort();
+      findings.end();
       turns.length = 0;
       graph = { nodes: [], edges: [] };
     },

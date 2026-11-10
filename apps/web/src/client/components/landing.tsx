@@ -5,22 +5,22 @@ import { people } from "../preview/samples";
 
 const features = [
   {
-    icon: "hand",
+    icon: "chat",
     color: "yellow",
-    title: "割り込まずに手を挙げる",
-    text: "AIもひとりの参加者。話したいときは手を挙げて、会話の切れ目を待ちます。",
+    title: "AIも会話に加わる",
+    text: "ノトがみんなの話を聞いて、意見を出したり、「ほかの見方はある？」と問いを返したりします。",
   },
   {
-    icon: "bot",
+    icon: "search",
     color: "blue",
-    title: "進め方を一緒に決める",
-    text: "お題と時間を決めたら、集まったみんなで今日の進め方を組み立てます。",
+    title: "気になったことを、その場で調べる",
+    text: "「この条件でも使える？」といった疑問をAIに頼むと、答えと出典がその話題のカードに届きます。",
   },
   {
-    icon: "note",
+    icon: "discussion-map",
     color: "green",
-    title: "パートごとにメモが残る",
-    text: "出てきた意見はパートごとに整理。話し終えたあともノートで読み返せます。",
+    title: "みんなの考えが、マップでつながる",
+    text: "出た案とその理由、決まったこと、まだ確かめたいことを、MeetMapで一緒に見ながら話せます。",
   },
 ] as const;
 export function Landing({ children }: { children: ReactNode }) {

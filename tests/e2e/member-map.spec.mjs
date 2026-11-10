@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { chromium, expect, test } from "@playwright/test";
 import { initializeApp } from "firebase-admin/app";
@@ -11,7 +12,26 @@ import { memberGateway } from "../../apps/web/scripts/live-map/member-gateway.mj
 
 const web = "http://127.0.0.1:3100";
 const real = process.env.MEETING_MAP_LIVE_AI === "1";
+const realResearch = process.env.MEETING_RESEARCH_LIVE === "1";
 test.use({ trace: "off", screenshot: "off" });
+// These cases configure the same emulator-only member gateway.
+test.describe.configure({ mode: "default" });
+
+async function createRoom(page, topic) {
+  await page.getByRole("link", { name: "部屋を開く" }).click();
+  await page.getByRole("link", { name: /部屋を作る/ }).click();
+  await page.getByLabel("話し合いのお題").fill(topic);
+  await page.getByRole("button", { name: "部屋を作る" }).click();
+  const dialog = page.getByRole("dialog", { name: "部屋ができました" });
+  const url = await dialog.getByLabel("招待リンク").inputValue();
+  await dialog.getByRole("link", { name: "部屋に入る" }).click();
+  return url;
+}
+async function join(page) {
+  await page.getByRole("checkbox", { name: /18歳以上/ }).check();
+  await page.getByRole("checkbox", { name: /文字に起こす/ }).check();
+  await page.getByRole("button", { name: "入室する", exact: true }).click();
+}
 
 test("admitted Google users share their room's map while a second room meets independently", async () => {
   test.setTimeout(real ? 155000 : 60000);
@@ -83,21 +103,6 @@ test("admitted Google users share their room's map while a second room meets ind
       };
     }, !real);
     return page;
-  }
-  async function createRoom(page, topic) {
-    await page.getByRole("link", { name: "部屋を開く" }).click();
-    await page.getByRole("link", { name: /部屋を作る/ }).click();
-    await page.getByLabel("話し合いのお題").fill(topic);
-    await page.getByRole("button", { name: "部屋を作る" }).click();
-    const dialog = page.getByRole("dialog", { name: "部屋ができました" });
-    const url = await dialog.getByLabel("招待リンク").inputValue();
-    await dialog.getByRole("link", { name: "部屋に入る" }).click();
-    return url;
-  }
-  async function join(page) {
-    await page.getByRole("checkbox", { name: /18歳以上/ }).check();
-    await page.getByRole("checkbox", { name: /文字に起こす/ }).check();
-    await page.getByRole("button", { name: "入室する", exact: true }).click();
   }
   async function openMap(page) {
     await page.getByRole("button", { name: "議論マップを開く" }).click();
@@ -349,6 +354,180 @@ test("admitted Google users share their room's map while a second room meets ind
   } finally {
     await Promise.all(browsers.map((b) => b.close()));
     await relay?.close();
+    await settings.delete();
+  }
+});
+
+async function startResearchGateway(db, origin, services) {
+  if (!realResearch) {
+    const relay = memberGateway({
+      services,
+      access: memberAccess(db, origin),
+      allowedOrigins: [web],
+    });
+    relay.server.listen(3168, "127.0.0.1");
+    await once(relay.server, "listening");
+    return () => relay.close();
+  }
+  const relay = spawn(
+    process.execPath,
+    ["apps/web/.next/standalone/apps/web/scripts/run-member-map.mjs"],
+    {
+      env: {
+        ...process.env,
+        PORT: "3168",
+        GOOGLE_CLOUD_PROJECT: "demo-meeting-auth",
+        MEETING_VOICE_ENABLED: "1",
+        MEETING_MAP_ORIGIN: origin,
+        MEETING_MAP_WEB_ORIGIN: web,
+      },
+      stdio: "inherit",
+    },
+  );
+  const stopped = once(relay, "exit");
+  const close = () => {
+    relay.kill();
+    return stopped;
+  };
+  try {
+    await expect
+      .poll(
+        () =>
+          fetch(origin + "/health").then(
+            (r) => r.ok,
+            () => false,
+          ),
+        { timeout: 15_000 },
+      )
+      .toBe(true);
+  } catch (error) {
+    await close();
+    throw error;
+  }
+  return close;
+}
+
+test("members research a selected card or its pending check and share the cited result", async ({
+  browser,
+}) => {
+  test.setTimeout(realResearch ? 175_000 : 60_000);
+  expect(process.env.FIRESTORE_EMULATOR_HOST).toBe("127.0.0.1:8180");
+  const db = getFirestore(
+    initializeApp({ projectId: "demo-meeting-auth" }, "member-research-test"),
+  );
+  const settings = db.doc("roomMapSettings/default");
+  const origin = "http://127.0.0.1:3168";
+  const host = await browser.newPage();
+  const guest = await browser.newPage();
+  const graph = {
+    nodes: [
+      {
+        id: "place",
+        kind: "idea",
+        status: "candidate",
+        text: "東京タワーを見学する",
+        sourceUtteranceIds: ["u01"],
+      },
+      {
+        id: "height",
+        kind: "question",
+        status: "open",
+        text: "東京タワーの塔の高さは何メートル？",
+        sourceUtteranceIds: ["u01"],
+      },
+    ],
+    edges: [
+      {
+        id: "height-place",
+        from: "height",
+        to: "place",
+        relation: "asks_about",
+      },
+    ],
+  };
+  const services = {
+    predict: async () => graph,
+    research: async () => ({
+      state: "answered",
+      answer: "東京タワーの高さは333メートル。",
+      source: {
+        href: "https://www.tokyotower.co.jp/plan/towerpedia/",
+        title: "タワペディア",
+        publisher: "東京タワー",
+      },
+      relation: "informs",
+    }),
+  };
+  const closeRelay = await startResearchGateway(db, origin, services);
+  try {
+    await settings.set({ enabled: true, origin, session: randomUUID() });
+    await host.goto(web);
+    await signInWithTestGoogle(host, "lookup-host@example.test", "主催者");
+    const invite = await createRoom(host, "校外学習の見学先");
+    await join(host);
+    await guest.goto(invite);
+    await signInWithTestGoogle(guest, "lookup-guest@example.test", "参加者");
+    await guest.getByRole("button", { name: "入室する", exact: true }).click();
+    await join(guest);
+    for (const p of [host, guest])
+      await p.getByRole("button", { name: "議論マップを開く" }).click();
+    await host.getByText("文字で発言する", { exact: true }).click();
+    await host
+      .getByLabel("発言", { exact: true })
+      .fill(
+        "校外学習で訪れる見学先の候補に東京タワーを提案します。判断する前に確認したいのは、東京タワーの塔の高さが何メートルかです。高さはまだ分かりません。",
+      );
+    await host.getByRole("button", { name: "発言を送る" }).click();
+    const check = host
+      .locator(".map-pending-checks [data-kind=question]")
+      .filter({ hasText: /高さ|何メートル/ })
+      .first();
+    await expect(check).toBeVisible({ timeout: realResearch ? 95_000 : 5000 });
+    const id = await check.getAttribute("data-map-node");
+    const direct = host
+      .getByRole("region", { name: "議論のつながり" })
+      .getByRole("button", { name: /(?:高さ|何メートル).*AIに調べてもらう/ });
+    await direct.click();
+    let href;
+    for (const p of [host, guest]) {
+      const sameCard = p.locator('[data-map-node="' + id + '"]');
+      await expect(sameCard).toContainText(/333|３３３/, {
+        timeout: realResearch ? 55_000 : 5000,
+      });
+      await sameCard.click();
+      const source = p
+        .getByRole("complementary", { name: "根拠の発言" })
+        .getByRole("link", { name: /出典/ });
+      const url = await source.getAttribute("href");
+      expect(url).toMatch(/^https:\/\//);
+      href ??= url;
+      expect(url).toBe(href);
+      await expect(
+        sameCard.locator("..").getByRole("link", { name: /出典/ }),
+      ).toHaveAttribute("href", href);
+      await expect(
+        p.getByRole("region", { name: "参考資料" }).getByRole("link"),
+      ).toHaveAttribute("href", href);
+    }
+    if (realResearch) {
+      const page = await host.request.get(href, { timeout: 12_000 });
+      expect(page.ok()).toBe(true);
+      expect(await page.text()).toMatch(/333|３３３/);
+    } else {
+      const idea = guest.locator('[data-map-node="place"]');
+      await idea.click();
+      await guest
+        .getByRole("complementary", { name: "根拠の発言" })
+        .getByRole("button", { name: /AIに調べてもらう/ })
+        .click();
+      await expect(
+        host.getByRole("region", { name: "参考資料" }).getByRole("listitem"),
+      ).toHaveCount(2);
+      await expect(idea).toHaveAttribute("data-status", "candidate");
+    }
+  } finally {
+    await Promise.all([guest.context().close(), host.context().close()]);
+    await closeRelay();
     await settings.delete();
   }
 });

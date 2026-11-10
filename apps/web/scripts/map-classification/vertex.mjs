@@ -1,6 +1,15 @@
 import { setTimeout as delay } from "node:timers/promises";
 
 export const model = "gemini-3.8-flash";
+export function vertexContentUrl(project) {
+  return (
+    "https://aiplatform.googleapis.com/v1/projects/" +
+    project +
+    "/locations/global/publishers/google/models/" +
+    model +
+    ":generateContent"
+  );
+}
 export const promptVersion = "map-delta-4";
 export const generation = {
   temperature: 0.2,
@@ -173,12 +182,7 @@ export async function classify({
   schema,
   signal,
 }) {
-  const endpoint =
-    "https://aiplatform.googleapis.com/v1/projects/" +
-    project +
-    "/locations/global/publishers/google/models/" +
-    model +
-    ":generateContent";
+  const endpoint = vertexContentUrl(project);
   const history = JSON.stringify({ definition, heard, graph });
   let fix = "";
   for (let attempt = 1; attempt <= 3; attempt++) {

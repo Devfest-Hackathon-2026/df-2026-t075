@@ -123,3 +123,10 @@ node tests/runtime/live-map-audio.mjs /path/to/host.wav /path/to/guest.wav
 ```
 
 2つのChromiumで別々のWAVをマイク入力に使う。相互の音声再生、実際の文字起こしとVertex判定、発言者つき字幕・カードの一致、終了時の両画面の消去を確認する。検証は課金対象。招待キーや発言内容は出力しない。
+
+会員の部屋でカードからの外部検索を試すときは、ADCとVertex AIを利用できるプロジェクトを用意し、`MEETING_MAP_AI_PROJECT` にそのプロジェクトを指定する。次のテストは認証と部屋だけをエミュレートし、2人のブラウザーで同じカードに届いた回答と出典を照合して、実際の出典ページも開く。音声ファイルは使わない。
+
+```sh
+npm run build
+MEETING_RESEARCH_LIVE=1 npx --yes firebase-tools@15.35.0 emulators:exec --only auth,firestore --project demo-meeting-auth "./node_modules/.bin/playwright test tests/e2e/member-map.spec.mjs -g 'members research' --workers=1"
+```
