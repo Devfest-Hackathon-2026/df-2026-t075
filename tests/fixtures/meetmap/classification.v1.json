@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "title": "議論マップの発言判別",
+  "kinds": {
+    "topic": {
+      "label": "論点",
+      "definition": "参加者が答えや方針を決めたい問い。案が採用され、方針が固まったら検討終了にする。",
+      "statuses": ["open", "decided"]
+    },
+    "condition": {
+      "label": "条件",
+      "definition": "論点の候補を判断する共通の前提や希望。会場選びでの開催日や予算の上限が当たる。",
+      "statuses": ["relaxed", "withdrawn"]
+    },
+    "idea": {
+      "label": "案",
+      "definition": "論点に対し、参加者が選べる具体的な答え。開催日を決める議論なら日付の提案も案になる。",
+      "statuses": ["candidate", "proposed-removal", "excluded", "decided"]
+    },
+    "reason": {
+      "label": "理由",
+      "definition": "案を選ぶ、または見送る判断の根拠。どの案にどう効くかを関係として記録する。",
+      "statuses": []
+    },
+    "question": {
+      "label": "確認事項",
+      "definition": "案を評価するために確かめる事柄。回答が出たら同じ項目を更新する。",
+      "statuses": ["open", "checking", "confirmed"]
+    },
+    "note": {
+      "label": "補足",
+      "definition": "関連する背景や手元にある資料など、それ自体では案の採否を左右しない情報。",
+      "statuses": []
+    },
+    "action": {
+      "label": "やること",
+      "definition": "依頼された、または誰かが引き受けた作業。担当者と実行するタイミングを発言に沿って記録する。",
+      "statuses": ["pending", "completed"]
+    }
+  },
+  "statuses": {
+    "open": "論点は検討中、確認事項は未確認",
+    "candidate": "候補",
+    "checking": "確認中",
+    "confirmed": "確認済み",
+    "proposed-removal": "見送りを提案",
+    "excluded": "見送り",
+    "decided": "案は決定、論点は検討終了",
+    "relaxed": "条件を緩和",
+    "withdrawn": "条件を撤回",
+    "pending": "作業は未完了",
+    "completed": "作業の完了が報告された"
+  },
+  "relations": {
+    "answers": "案が答える論点",
+    "condition_for": "条件が属する論点",
+    "asks_about": "未確認・確認中の項目が対象とする案",
+    "supports": "理由・確認結果が案を補強する",
+    "opposes": "理由・確認結果が案を見送る材料になる",
+    "informs": "補足・確認結果が案の参考になる",
+    "action_for": "作業が属する案または論点",
+    "reason_for_exclusion": "参加者がこの理由で案の見送りを提案した",
+    "revises_condition": "理由が条件の変更につながった",
+    "cites": "判断の根拠として別の項目を参照する"
+  },
+  "sourceRoles": {
+    "statement": "項目の内容を述べた",
+    "agree": "賛成した",
+    "disagree": "反対した"
+  },
+  "instructions": [
+    "その時点までの発言で判定する。一つの発言から複数の項目を更新でき、単なる相づちなら変更は0件でよい。",
+    "同じ対象への回答や訂正は既存の項目を更新する。各項目の sourceUtteranceIds に根拠の発言IDを残す。",
+    "条件を満たすかどうかと、参加者が案の採否を決めたかどうかを別々に記録する。金額が一部分しか判明していなければ総額を推測しない。",
+    "発言者は元の発言からたどり、作業をする人が明らかな場合は assignee に記録する。依頼や引き受けだけで作業を完了にしない。"
+  ]
+}

@@ -1,0 +1,144 @@
+.live-map-page {
+  padding-block: 34px 56px;
+}
+.live-heading,
+.live-line,
+.live-buttons,
+.live-people,
+.live-text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.live-heading {
+  margin-bottom: 20px;
+}
+.live-kicker,
+.live-captions small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.live-heading h1 {
+  font-size: clamp(25px, 4vw, 38px);
+  margin: 5px 0;
+}
+.live-indicator {
+  background: #cff0df;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-weight: 700;
+}
+.live-map-page h2 {
+  font-size: 17px;
+}
+.live-controls,
+.live-entry,
+.live-captions,
+.live-empty {
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.live-entry {
+  max-width: 650px;
+}
+.live-entry form,
+.live-entry,
+.live-controls,
+.live-captions {
+  display: grid;
+  gap: 13px;
+}
+.live-entry form {
+  margin-top: 5px;
+}
+.live-entry form > .btn {
+  justify-self: start;
+}
+.live-map-page label:not(.live-consent) {
+  display: grid;
+  gap: 5px;
+  font-weight: 600;
+}
+.live-consent {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+.live-map-page .live-consent input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  margin: 3px 0;
+}
+.live-map-page summary {
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.live-map-page details[open] > summary {
+  margin-bottom: 9px;
+}
+.live-controls details input {
+  margin-block: 2px 8px;
+}
+.live-buttons,
+.live-people {
+  justify-content: flex-start;
+}
+.live-people {
+  margin-top: 7px;
+  font-size: 14px;
+}
+.live-people > span {
+  white-space: nowrap;
+}
+.live-text {
+  align-items: end;
+  justify-content: flex-start;
+}
+.live-text label {
+  flex: 1;
+}
+.live-captions ol {
+  padding-left: 1.6em;
+  margin: 8px 0;
+  max-height: 260px;
+  overflow: auto;
+}
+.live-captions li + li {
+  margin-top: 7px;
+}
+.live-empty {
+  padding-block: 35px;
+  text-align: center;
+  background: var(--paper);
+}
+.live-empty > .symbol {
+  font-size: 28px;
+}
+.live-message {
+  padding: 9px 12px;
+  border-left: 4px solid #3155ad;
+  margin-bottom: 12px;
+  background: #e8eeff;
+}
+.live-error {
+  border-color: #aa3737;
+  background: #ffe2df;
+}
+
+.member-map {
+  padding-block: 24px 40px;
+  scroll-margin-block: 16px;
+}
+.member-map .live-entry {
+  max-width: none;
+}
+.member-map .live-entry .btn {
+  justify-self: start;
+}

@@ -1,0 +1,78 @@
+.icon-hand {
+  --symbol: url("@material-symbols/svg-600/sharp/front_hand.svg");
+}
+.icon-bot {
+  --symbol: url("@material-symbols/svg-600/sharp/smart_toy.svg");
+}
+.icon-note {
+  --symbol: url("@material-symbols/svg-600/sharp/edit_note.svg");
+}
+.icon-forward {
+  --symbol: url("@material-symbols/svg-600/sharp/arrow_forward.svg");
+}
+.icon-back {
+  --symbol: url("@material-symbols/svg-600/sharp/arrow_back.svg");
+}
+.icon-add {
+  --symbol: url("@material-symbols/svg-600/sharp/add.svg");
+}
+.icon-copy {
+  --symbol: url("@material-symbols/svg-600/sharp/content_copy.svg");
+}
+.icon-mic {
+  --symbol: url("@material-symbols/svg-600/sharp/mic.svg");
+}
+.icon-camera {
+  --symbol: url("@material-symbols/svg-600/sharp/videocam.svg");
+}
+.icon-leave {
+  --symbol: url("@material-symbols/svg-600/sharp/logout.svg");
+}
+.icon-menu {
+  --symbol: url("@material-symbols/svg-600/sharp/more_horiz.svg");
+}
+.icon-book {
+  --symbol: url("@material-symbols/svg-600/sharp/menu_book.svg");
+}
+.icon-close {
+  --symbol: url("@material-symbols/svg-600/sharp/close.svg");
+}
+.icon-check {
+  --symbol: url("@material-symbols/svg-600/sharp/check.svg");
+}
+.icon-flag {
+  --symbol: url("@material-symbols/svg-600/sharp/flag.svg");
+}
+.icon-volume {
+  --symbol: url("@material-symbols/svg-600/sharp/volume_up.svg");
+}
+.icon-timer {
+  --symbol: url("@material-symbols/svg-600/sharp/timer.svg");
+}
+.icon-down {
+  --symbol: url("@material-symbols/svg-600/sharp/keyboard_arrow_down.svg");
+}
+.icon-error {
+  --symbol: url("@material-symbols/svg-600/sharp/error.svg");
+}
+.icon-group {
+  --symbol: url("@material-symbols/svg-600/sharp/group.svg");
+}
+.icon-fullscreen {
+  --symbol: url("@material-symbols/svg-600/sharp/fullscreen.svg");
+}
+.icon-fullscreen-exit {
+  --symbol: url("@material-symbols/svg-600/sharp/fullscreen_exit.svg");
+}
+.icon-move {
+  --symbol: url("@material-symbols/svg-600/sharp/open_with.svg");
+}
+.icon-outward {
+  --symbol: url("@material-symbols/svg-600/sharp/arrow_outward.svg");
+}
+.icon-mic-off {
+  --symbol: url("@material-symbols/svg-600/sharp/mic_off.svg");
+}
+.icon-camera-off {
+  --symbol: url("@material-symbols/svg-600/sharp/videocam_off.svg");
+}

@@ -1,0 +1,139 @@
+{
+  "throughUtteranceId": "u16",
+  "nodes": [
+    {
+      "id": "n1",
+      "kind": "question",
+      "text": "勉強会をどこで開く？",
+      "status": "open",
+      "sourceUtteranceIds": ["u01"]
+    },
+    {
+      "id": "n2",
+      "kind": "idea",
+      "text": "駅前の貸会議室を使う",
+      "status": "candidate",
+      "sourceUtteranceIds": ["u02", "u12", "u13"]
+    },
+    {
+      "id": "n3",
+      "kind": "idea",
+      "text": "市民センターの研修室を使う",
+      "status": "candidate",
+      "sourceUtteranceIds": ["u07", "u08"]
+    },
+    {
+      "id": "n10",
+      "kind": "condition",
+      "text": "開催予定は12月12日の午後",
+      "sourceUtteranceIds": ["u01"]
+    },
+    {
+      "id": "n4",
+      "kind": "reason",
+      "text": "改札から近く、初めての人も迷いにくい",
+      "sourceUtteranceIds": ["u02"]
+    },
+    {
+      "id": "n5",
+      "kind": "condition",
+      "text": "部屋代と機材代を合わせて1万円以内",
+      "sourceUtteranceIds": ["u01", "u16"]
+    },
+    {
+      "id": "n6",
+      "kind": "question",
+      "text": "駅前の室料8千円にプロジェクター代は含まれる？",
+      "status": "checking",
+      "sourceUtteranceIds": ["u11", "u13", "u14"],
+      "sourceRoles": { "u13": "statement" }
+    },
+    {
+      "id": "n11",
+      "kind": "question",
+      "text": "駅前の貸会議室は12月12日の午後に空きあり",
+      "status": "confirmed",
+      "sourceUtteranceIds": ["u11"]
+    },
+    {
+      "id": "n13",
+      "kind": "question",
+      "text": "参加者にどう道案内する？",
+      "status": "open",
+      "sourceUtteranceIds": ["u09", "u10"]
+    },
+    {
+      "id": "n17",
+      "kind": "idea",
+      "text": "案内に地図のリンクを貼る",
+      "status": "decided",
+      "sourceUtteranceIds": ["u09", "u10"],
+      "sourceRoles": { "u10": "agree" }
+    },
+    {
+      "id": "n18",
+      "kind": "idea",
+      "text": "できれば入口の写真も案内に添える",
+      "status": "candidate",
+      "sourceUtteranceIds": ["u10"]
+    },
+    {
+      "id": "n19",
+      "kind": "reason",
+      "text": "昨年、同じ建物の反対側で待っていた参加者がいた",
+      "sourceUtteranceIds": ["u10"]
+    },
+    {
+      "id": "n14",
+      "kind": "question",
+      "text": "机を並べても16席あり、参加予定の12人が座れる",
+      "status": "confirmed",
+      "sourceUtteranceIds": ["u03", "u04"],
+      "sourceRoles": { "u04": "statement" }
+    },
+    {
+      "id": "n15",
+      "kind": "question",
+      "text": "駅前の12日午後の室料は8千円",
+      "status": "confirmed",
+      "sourceUtteranceIds": ["u05", "u06", "u11"],
+      "sourceRoles": { "u11": "statement" }
+    },
+    {
+      "id": "n21",
+      "kind": "reason",
+      "text": "プロジェクターでスライドを映せる",
+      "sourceUtteranceIds": ["u12"]
+    },
+    {
+      "id": "n16",
+      "kind": "reason",
+      "text": "昨年利用した研修室は20人収容で、参加予定の12人が入れる",
+      "sourceUtteranceIds": ["u08", "u03"]
+    },
+    {
+      "id": "n7",
+      "kind": "question",
+      "text": "昨年の土曜午後は6千円だった記憶。今年の料金は？",
+      "status": "open",
+      "sourceUtteranceIds": ["u08"]
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "n2", "to": "n1", "relation": "answers" },
+    { "id": "e2", "from": "n3", "to": "n1", "relation": "answers" },
+    { "id": "e3", "from": "n4", "to": "n2", "relation": "supports" },
+    { "id": "e4", "from": "n5", "to": "n1", "relation": "condition_for" },
+    { "id": "e6", "from": "n6", "to": "n2", "relation": "asks_about" },
+    { "id": "e10", "from": "n10", "to": "n1", "relation": "condition_for" },
+    { "id": "e12", "from": "n11", "to": "n2", "relation": "supports" },
+    { "id": "e16", "from": "n14", "to": "n2", "relation": "supports" },
+    { "id": "e17", "from": "n15", "to": "n2", "relation": "informs" },
+    { "id": "e23", "from": "n21", "to": "n2", "relation": "supports" },
+    { "id": "e18", "from": "n16", "to": "n3", "relation": "supports" },
+    { "id": "e7", "from": "n7", "to": "n3", "relation": "asks_about" },
+    { "id": "e19", "from": "n17", "to": "n13", "relation": "answers" },
+    { "id": "e20", "from": "n18", "to": "n13", "relation": "answers" },
+    { "id": "e21", "from": "n19", "to": "n18", "relation": "supports" }
+  ]
+}

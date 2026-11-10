@@ -1,0 +1,168 @@
+@import "./icons.css";
+@import "./blocks.css";
+@import "./pages.css";
+@import "./meeting.css";
+@import "./meeting-map-focus.css";
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 880px) {
+  .shell,
+  .bar-inner {
+    width: calc(100% - 48px);
+  }
+  .hero {
+    gap: 24px;
+    min-height: 400px;
+  }
+  .features {
+    gap: 16px;
+  }
+  .feature {
+    padding: 16px;
+  }
+  .meeting-body.with-panel {
+    grid-template-columns: minmax(0, 1fr) 228px;
+  }
+}
+@media (max-width: 720px) {
+  .shell,
+  .bar-inner {
+    width: calc(100% - 32px);
+  }
+  .bar-inner {
+    min-height: 60px;
+  }
+  .wordmark {
+    font-size: 24px;
+  }
+  .hero,
+  .entrances,
+  .join-grid,
+  .meeting-body.with-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero {
+    gap: 16px;
+    padding-block: 32px;
+  }
+  .hero-copy h1 {
+    font-size: 30px;
+  }
+  .hero-art {
+    width: min(100%, 480px);
+    justify-self: center;
+    padding: 12px 16px 20px;
+  }
+  .features {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding-block: 24px;
+  }
+  .feature {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 4px 16px;
+  }
+  .feature .feature-icon {
+    grid-row: span 2;
+  }
+  .feature h2 {
+    margin: 0;
+  }
+  .feature p {
+    grid-column: 2;
+  }
+  .workspace,
+  .form-page,
+  .note-page {
+    padding-block: 24px 40px;
+  }
+  .presets,
+  .duration-options {
+    gap: 8px;
+  }
+  .preset,
+  .form-panel {
+    padding: 8px;
+  }
+  .form-panel {
+    padding: 16px;
+  }
+  .preset-picture {
+    height: 72px;
+  }
+  .preset-picture .face {
+    --face-width: 40px;
+  }
+  .entry-actions {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .meeting-head {
+    gap: 8px;
+  }
+  .meeting-head h1 {
+    flex-basis: 100%;
+  }
+  .meeting-body .agenda {
+    padding: 16px;
+  }
+  .video-grid {
+    gap: 8px;
+  }
+  .captions {
+    display: grid;
+    gap: 4px;
+  }
+  .part-actions {
+    justify-content: flex-end;
+  }
+  .note-tools {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .room-info,
+  .ai-info,
+  .devices,
+  .join-code,
+  .create-entry {
+    padding: 16px;
+  }
+}
+@media (max-width: 420px) {
+  .member-meeting .listen-chip,
+  .member-meeting .clock-chip {
+    padding-inline: 8px;
+    gap: 5px;
+  }
+  .member-meeting .clock-chip {
+    font-size: 20px;
+  }
+  .meeting-controls {
+    gap: 8px;
+  }
+  .video-grid .face {
+    --face-width: 40px;
+  }
+  .tile-label {
+    bottom: 4px;
+    left: 4px;
+  }
+  .ai-wrap .allow-ai {
+    right: 4px;
+    bottom: 4px;
+    font-size: 11px;
+    min-height: 24px;
+  }
+  .device-select {
+    grid-template-columns: 1fr;
+  }
+}

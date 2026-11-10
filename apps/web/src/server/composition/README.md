@@ -1,0 +1,7 @@
+# composition: 実装の生成と結線
+
+環境設定を読み、具体的なログやHTTP処理を作って、appへ渡す場所です。将来の外部サービスもここで生成し、applicationのユースケースに必要なインターフェースとして渡します。
+
+server内のdomain/application/infrastructureを参照できます。運用者用APIでは共通のトークン検証を通したうえで、URLに対応するFirestoreまたは既存SQL Connectの疎通処理を呼びます。サーバー向けの結線には`server-only`を付けます。
+
+`initializeServerRuntime`はinstrumentation専用の起動処理です。Route側の`getServerLogger`は起動ログを出しません。loggerのキャッシュはバンドルごとに独立し、プロセス全体の共有を保証しません。将来のSDKをここへ無条件に追加せず、接続ごとに寿命と共有範囲を決めます。

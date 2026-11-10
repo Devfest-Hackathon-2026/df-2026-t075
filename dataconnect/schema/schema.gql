@@ -1,0 +1,5 @@
+type ConnectionCheck @table {
+  id: UUID!
+  marker: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
